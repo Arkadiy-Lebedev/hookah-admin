@@ -37,7 +37,6 @@ export const useProductsList = defineStore('productsList', () => {
             console.log(e)
         }
     }
-
     const getCategories = async () => {
         try {
            
