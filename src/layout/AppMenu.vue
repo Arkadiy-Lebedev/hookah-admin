@@ -57,6 +57,11 @@ const model = ref([
                 to: '/push'
 
             },
+            {
+                label: 'Столы', icon: 'pi pi-fw pi-check-square',
+                to: '/table'
+
+            }
         ]
     }   
 ]);
