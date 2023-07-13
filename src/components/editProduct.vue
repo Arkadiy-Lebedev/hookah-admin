@@ -5,6 +5,11 @@ import { apiMain } from "../api/api"
 import { useModalStore } from '../stores/modalStore'
 import { useProductsList } from '../stores/productsStore'
 
+const emit = defineEmits<{
+    (e: 'toast', status: string): void
+ 
+}>()
+
 const ModalStore = useModalStore();
 const productsList = useProductsList();
 productsList.getCategories()
@@ -74,8 +79,9 @@ const submitForm = () => {
     .then((data) => {
       console.log(456)
       if (data.status) {
-        ModalStore.modalEditProduct = false
+        // ModalStore.modalEditProduct = false
          productsList.getProducts()
+         emit("toast", "success")
       }
 
 
@@ -101,9 +107,7 @@ const submitForm = () => {
 
 <template>
   <div class="p-fluid">
-    {{ productsList.product.image_product.split('--')[1] }}
-     {{ productsList.product.image_product.split('.').at(-1) }}
-{{ productItem.file }}
+
   <form @submit.prevent="submitForm">
     <div class="img__group">
          <div class="filegroup " >
@@ -117,7 +121,7 @@ const submitForm = () => {
   
       </div>
       <div class="col-5">
-         <Image v-if="filesForAvatar" :src="filesForAvatar" alt="Image" width="250" preview />
+         <Image v-if="filesForAvatar" :src="filesForAvatar" alt="Image" width="250"  />
       </div> 
       </div> 
 
@@ -142,7 +146,7 @@ const submitForm = () => {
     <div class="progressbar">
       <ProgressBar :value="progress" v-if="onProgress" />
     </div>
-    <Button type="submit" label="Изменить" :loading="loading" class="p-button-raised" />
+    <Button type="submit" label="Сохранить" :loading="loading" class="p-button-raised" />
   </form>
   </div>
 </template>
@@ -154,8 +158,9 @@ const submitForm = () => {
   margin-bottom: 1%;
 }
 
-.selectfile {
+.selectfile:hover {
   cursor: pointer;
+  color: blue;
 }
 </style>
 

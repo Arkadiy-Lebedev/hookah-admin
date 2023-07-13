@@ -3,6 +3,12 @@ import { ref, reactive } from 'vue';
 import axios from 'axios';
 import { apiMain } from "../api/api"
 import { useConfirm } from "primevue/useconfirm";
+import delButton from "../components/delButton.vue"
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
+
 
 
 const confirm = useConfirm();
@@ -50,6 +56,7 @@ const submitForm = () => {
         })
         .then((data) => {
             console.log(data)
+            toast.add({ severity: 'success', summary: 'Успешно', detail: 'Администратор добавлен', life: 3000 });
             getAdmins()
            
             // if (data.status) {
@@ -105,6 +112,7 @@ const delAdmins = async (event:any, id: number) => {
             data: { id: id }
         })
         getAdmins()
+        toast.add({ severity: 'warn', summary: 'Администратор удален', detail: '', life: 3000 });
         
     } catch (e) {
         console.log(e)
@@ -128,6 +136,7 @@ const delAdmins = async (event:any, id: number) => {
 <template>
 
     <div class="grid">
+          <Toast />
         <div class="col-12 lg:col-6 xl:col-5">
             <div class="card mb-0">
                 <h5>Администраторы: </h5>
@@ -137,7 +146,8 @@ const delAdmins = async (event:any, id: number) => {
                      <template #body="slotProps">
                         <div class="admin__item">
                               <p>{{ slotProps.data.phone }}</p>
-                    <Button @click="delAdmins($event, slotProps.data.id)" icon="pi pi-times" severity="danger" rounded aria-label="Cancel" />
+                              <delButton  @click="delAdmins($event, slotProps.data.id)"/>
+                    <!-- <Button @click="delAdmins($event, slotProps.data.id)" icon="pi pi-times" severity="danger" rounded aria-label="Cancel" /> -->
                            <ConfirmPopup></ConfirmPopup> 
                 </div>
                       
@@ -181,6 +191,7 @@ const delAdmins = async (event:any, id: number) => {
 </template>
 
 <style >
+
 .admin__item{
     display:flex;
     justify-content:space-between;

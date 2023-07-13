@@ -3,6 +3,10 @@
 import { ref, reactive } from 'vue';
 import axios from 'axios';
 import { apiMain } from "../api/api"
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 const progress = ref()
 const textBtnFile = ref("загрузить")
@@ -57,6 +61,7 @@ const submitForm = () => {
                 // productsList.getProducts()
                 pushItem.title = ""
                 pushItem.body = ""
+                toast.add({ severity: 'success', summary: 'Уведомление отправлено', detail: '', life: 3000 });
                 
             }
 
@@ -80,6 +85,7 @@ const submitForm = () => {
 
 </script>
 <template>
+      <Toast />
     <div class="grid">
 
         <div class="col-12 lg:col-6 xl:col-5">

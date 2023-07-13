@@ -16,49 +16,49 @@ const model = ref([
         label: 'Дополнительно',
         items: [    
             {
-                label: 'Акции', icon: 'pi pi-fw pi-check-square',               
+                label: 'Акции', icon: 'pi pi-fw pi-ticket',               
                 to: ''
 
             },      
             {
-                label: 'Меню', icon: 'pi pi-fw pi-check-square',
+                label: 'Меню', icon: 'pi pi-fw pi-book',
                  items: [
                     {
                         label: 'Продукты',
-                        icon: 'pi pi-fw pi-bookmark',
+                        icon: 'pi pi-fw pi-tag',
                         to: '/products'
                     },
                     {
                         label: 'Категории',
-                        icon: 'pi pi-fw pi-bookmark',
-                        to: ''
+                        icon: 'pi pi-fw pi-qrcode',
+                        to: '/categories'
                     }
                 ]
 
             },
               {
-                label: 'Пользователи', icon: 'pi pi-fw pi-check-square',
+                label: 'Пользователи', icon: 'pi pi-fw pi-users',
                 items: [
                     {
                         label: 'Администраторы',
-                        icon: 'pi pi-fw pi-bookmark',
+                        icon: 'pi pi-fw pi-server',
                         to: '/users/admins'
                     },
                     {
                         label: 'Клиенты',
-                        icon: 'pi pi-fw pi-bookmark',
+                        icon: 'pi pi-fw pi-user',
                         to: '/users'
                     }
                 ]
 
             },
             {
-                label: 'PUSH сообщения', icon: 'pi pi-fw pi-check-square',
+                label: 'PUSH сообщения', icon: 'pi pi-fw pi-comment',
                 to: '/push'
 
             },
             {
-                label: 'Столы', icon: 'pi pi-fw pi-check-square',
+                label: 'Столы', icon: 'pi pi-fw pi-table',
                 to: '/table'
 
             }

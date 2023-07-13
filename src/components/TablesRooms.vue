@@ -6,9 +6,12 @@ import { useTablesList } from '../stores/tablesStore'
 import { useDateStore } from '../stores/dateStore'
 import { ITables, ITablesInfo } from "../types/ITables"
 import TableMainWork from "../components/TableMainWork.vue"
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
 const tablesList = useTablesList();
 const dateStore = useDateStore();
+const toast = useToast();
 
 interface ITableSinglInfo {
   tables: ITables[],
@@ -38,7 +41,21 @@ const getTable = async (tableInfo: ITableSinglInfo, number: number) => {
   
 }
 
-const closeModal = () => {
+const closeModal = (status) => {
+  console.log(89898)
+  console.log(status)
+  if(status == "busy"){
+    toast.add({ severity: 'warn', summary: 'Забронировано!', detail: 'Напомните о брони за 15 минут', life: 3000 });
+  }
+  if(status == "create"){
+    toast.add({ severity: 'success', summary: 'Стол в работе!', detail: 'Примите заказ', life: 3000 });
+  }
+   if(status == "delete"){
+    toast.add({ severity: 'error', summary: 'Бронь снята!', detail: '', life: 3000 });
+  }
+     if(status == "cancel"){
+    toast.add({ severity: 'success', summary: 'Стол свободен', detail: 'Проводите гостей', life: 3000 });
+  }
   isModal.value = false
 }
 
@@ -56,7 +73,7 @@ tablesList.getTablesInDate(dateStore.dateInBooking)
 
 </script>
 <template>
-
+        <Toast />
 <!-- :style="{ width: '60vw' }" -->
   <Dialog :header="tableSingleNumber" v-model:visible="isModal"
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' } " :style="{ width: '50vw' }"

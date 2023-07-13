@@ -3,6 +3,10 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { apiMain } from '../api/api'
 import editTable from '../components/editTable.vue'
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 interface ITable {
   name: string
@@ -34,8 +38,18 @@ const editTableId = (id) => {
     isModal.value=true
    
 }
+
+const closeModal = (status) => {
+    isModal.value=false
+    getTables()
+    if(status == "success"){
+      toast.add({ severity: 'success', summary: 'Успешно', detail: 'Изменения внесены', life: 3000 });
+    }
+    
+}
 </script>
 <template>
+  <Toast />
   <div class="grid">
 
     <div class="ье- col-12 lg:col-12 xl:col-12">
@@ -64,7 +78,7 @@ const editTableId = (id) => {
     </div>
   </div>
   <Dialog  header="Редактировать:" v-model:visible="isModal" :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' }" :style="{ width: '40vw' }" :modal="true">
-                  <editTable :table="table"></editTable>
+                  <editTable :table="table" @closeModal="closeModal"></editTable>
             </Dialog>
 </template>
 
