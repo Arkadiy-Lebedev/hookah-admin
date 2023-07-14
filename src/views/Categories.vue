@@ -42,6 +42,9 @@ const closeModal = (status) => {
   if (status == 'successadd') {
     toast.add({ severity: 'success', summary: 'Успешно', detail: 'Категория добавлена', life: 3000 })
   }
+    if (status == 'delete') {
+    toast.add({ severity: 'info', summary: 'Категория удалена', detail: '', life: 3000 })
+  }
 }
 
 const selectCategoria = (id) => {
@@ -61,7 +64,7 @@ const showModal = () => {
         <h5>Категории меню:</h5>
         <Button @click="showModal()" label="Добавить" class="mr-2 mb-5" size="small" />
         <div class="products">
-          <div
+          <div         
             v-for="categoria in categories"
             :key="categoria.id"
             class="products__items"

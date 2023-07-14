@@ -211,6 +211,7 @@ const confirm2 = (event, id) => {
     <ProductsList :id-booking="idBooking" @closeModal="closeModal"></ProductsList>
   </Dialog>
   <div class="booking__btn-group">
+
     <Button
       :disabled="new Date().toLocaleDateString() !== new Date(dateCalendar).toLocaleDateString()"
       v-if="!isStatusActive"

@@ -47,8 +47,12 @@ const router = createRouter({
                     path: '/table',
                     name: 'table',
                     component: () => import('@/views/Table.vue')
+                },
+                {
+                    path: '/sale',
+                    name: 'sale',
+                    component: () => import('@/views/Sale.vue')
                 }
-
             ]
         },
         {
@@ -60,7 +64,12 @@ const router = createRouter({
              path: '/auth',
              name: 'auth',
             component: () => import('@/views/Auth.vue'),
+        },
+         {
+             path: '/:pathMatch(.*)*',  
+            component: () => import('@/views/Error.vue'),
         }
+        
     ]
 });
 

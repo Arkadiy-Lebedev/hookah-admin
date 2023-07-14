@@ -17,7 +17,7 @@ const model = ref([
         items: [    
             {
                 label: 'Акции', icon: 'pi pi-fw pi-ticket',               
-                to: ''
+                to: '/sale'
 
             },      
             {

@@ -2,8 +2,10 @@
 import { ref, reactive } from 'vue';
 import axios from 'axios';
 import { apiMain } from "../api/api"
+import { useConfirm } from "primevue/useconfirm";
 
 
+const confirm = useConfirm();
 
 const props = defineProps<Props>()
 
@@ -107,6 +109,40 @@ const submitForm = () => {
     });
 }
 
+
+const delCategoria = async (event:any, id: number) => {
+    confirm.require({
+        target: event.currentTarget,
+        message: 'Удалить категорию?',
+        icon: 'pi pi-info-circle',
+        acceptClass: 'p-button-danger',
+        accept: async () => {
+            
+     try {       
+    const { data } = await axios.delete(`${apiMain}api/master/categories`,
+        {
+            data: { id: id }
+        })
+        emit('closeModal', 'delete')
+        
+    } catch (e) {
+        console.log(e)
+    }
+
+        },
+        reject: () => {
+            console.log("отмена")
+        },
+        acceptLabel: "Да",
+        rejectLabel: "Нет",
+
+
+    });
+
+
+
+}
+
 </script>
 
 <template>
@@ -139,13 +175,23 @@ const submitForm = () => {
     
     <div class="progressbar">
       <ProgressBar :value="progress" v-if="onProgress" />
+    </div>    
+    <div class="btn__group-modal mt-5">
+      <Button type="submit" label="Сохранить" :loading="loading" class="p-button-raised" />
+    <Button label="Удалить" :loading="loading" severity="danger" @click="delCategoria($event, categoriesItem.id)" />
+    <ConfirmPopup></ConfirmPopup> 
     </div>
-    <Button type="submit" label="Сохранить" :loading="loading" class="p-button-raised" />
+    
   </form>
   </div>
 </template>
 
 <style scoped>
+
+.btn__group-modal{
+  display: flex;
+  gap: 20px;
+}
 .selectfile{
   cursor: pointer;
 }

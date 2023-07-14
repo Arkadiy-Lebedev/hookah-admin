@@ -6,6 +6,12 @@ import { useRouter } from "vue-router"
 
 const router = useRouter()
 
+const isErrors = ref({
+    error: false,
+    textError: ""
+})
+const loading = ref(false)
+
 const user = reactive({
     phone: '',
     password: ""
@@ -13,6 +19,8 @@ const user = reactive({
 })
 
 const auth = async () => {
+    isErrors.value.error = false
+    loading.value = true
     axios
         .post(`${apiMain}api/auth`, user, {
             onUploadProgress: (e) => {
@@ -30,23 +38,15 @@ const auth = async () => {
                 router.push({ name: 'main' })
             }
 
-            // if (data.status) {
-            //     ModalStore.modalAddProduct = false
-            //     productsList.getProducts()
-            // }
-
 
         }).catch((error) => {
             console.log(error);
-            // if (error.response.status == 400) {
-            //     console.log("Такой администратор существует")
-            //     errorText.value = 'Такое имя занято.'
-            //     isErrors.value = true
-            // }
+            isErrors.value.error = true
+            isErrors.value.textError = error.response?.data?.message
       
         })
         .finally(() => {
-            // loading.value = false;
+            loading.value = false
 
 
         });
@@ -67,11 +67,11 @@ const auth = async () => {
         <div>
             <label for="phone" class="block text-900 font-medium mb-2">Логин:</label>
             <InputText v-model.trim="user.phone"  id="phone" type="text" class="w-full mb-3" />
-
             <label for="password1" class="block text-900 font-medium mb-2">Пароль:</label>
             <InputText v-model.trim="user.password"  id="password1" type="password" class="w-full mb-3" />
+            <Button  :loading="loading" type="submit" label="Войти" icon="pi pi-user" class="w-full mt-4"></Button>
 
-            <Button type="submit" label="Войти" icon="pi pi-user" class="w-full mt-4"></Button>
+            <InlineMessage v-if="isErrors.error" severity="error"  class="w-full mt-4">{{  isErrors.textError }}</InlineMessage>
         </div>
     </div>
     
