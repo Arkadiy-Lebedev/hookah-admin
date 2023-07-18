@@ -8,8 +8,7 @@ const model = ref([
         label: 'Главная',
         items: [
             { label: 'Главная', icon: 'pi pi-fw pi-home', to: '/' },
-            { label: 'Заказы', icon: 'pi pi-fw pi-home', to: '/booking' },
-            { label: 'Бронь', icon: 'pi pi-fw pi-id-card', to: '/uikit/formlayout', },]
+        ]
     },
     
     {

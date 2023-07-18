@@ -1129,7 +1129,7 @@ tablesList.getTablesInDate(dateStore.dateInBooking)
             :class="{ red: tablesList.table1Info(9).status == 'active', yellow: tablesList.table1Info(9).status == 'busy' }">
             <div class="overlay">
               <Tag class="overlay__tag" severity="info" rounded
-                v-for="item in tablesList.table1Info(10).tables.filter(el => el.status == 'busy')" :key="item.id"
+                v-for="item in tablesList.table1Info(9).tables.filter(el => el.status == 'busy')" :key="item.id"
                 :value="item.timeStart.split(' ')[1]"></Tag>
             </div>
             <svg viewBox="0 0 256 167" fill="none" xmlns="http://www.w3.org/2000/svg">

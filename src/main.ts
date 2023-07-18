@@ -52,7 +52,7 @@ import PickList from 'primevue/picklist';
 import ProgressBar from 'primevue/progressbar';
 
 import Ripple from 'primevue/ripple';
-
+import Tag from 'primevue/tag';
 import StyleClass from 'primevue/styleclass';
 
 import Textarea from 'primevue/textarea';
@@ -109,7 +109,7 @@ app.component('ConfirmPopup', ConfirmPopup);
 app.component('DataTable', DataTable);
 
 app.component('Dialog', Dialog);
-
+app.component('Tag', Tag);
 
 app.component('Fieldset', Fieldset);
 
