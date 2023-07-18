@@ -39,11 +39,11 @@ const categoriesItem = reactive({
 });
 
 const uploadImg = (e) => {
-  const arrType = ["jpg", "jpeg"];
+  
   let file = e.target.files[0];
 
   if (
-    !arrType.includes(file.name.split(".").pop()) ||
+
     file.size > 1024 * 1024 * 2
   ) {
     isErrorTypeFile.value = true;
