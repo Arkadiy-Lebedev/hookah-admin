@@ -35,13 +35,11 @@ const categoriesItem = reactive({
   type: ""
 });
 
-const uploadImg = (e) => {
-  
+const uploadImg = (e) => {  
   let file = e.target.files[0];
-
   if (
 
-    file.size > 1024 * 1024 * 2
+    file.size > 1024 * 1024 * 1
   ) {
     isErrorTypeFile.value = true;
 
@@ -54,8 +52,7 @@ const uploadImg = (e) => {
     reader.onload = function (e) {
       categoriesItem.file = that.target.files[0];
       filesForAvatar.value =
-        "data:image/png;base64," +
-        e.target.result.substring(e.target.result.indexOf(",") + 1);
+        e.target.result;
     };
     textBtnFile.value = "Изменить";
   }
@@ -123,10 +120,9 @@ const submitForm = () => {
             <p >Изображение категории:</p>
         <label for="file" class="selectfile"><i class="pi pi-upload form__icons"></i> {{ textBtnFile }}</label>
           
-        <input hidden id="file" class="select" ref="imgInput" type="file" accept="image/jpeg,image/jpg"
+        <input hidden id="file" class="select" ref="imgInput" type="file" accept="image/jpeg,image/jpg,image/png,.svg"
           @change="uploadImg($event)" />
-          <InlineMessage v-if="isErrorTypeFile" severity="error">Допустимый формат: только ".jpg, .jpeg". <br />
-          Максимальный размер файла: 2мб</InlineMessage>
+          <InlineMessage v-if="isErrorTypeFile" severity="error"> Максимальный размер файла: 1мб</InlineMessage>
   
       </div>
       <div v-if="filesForAvatar" class="products__items">

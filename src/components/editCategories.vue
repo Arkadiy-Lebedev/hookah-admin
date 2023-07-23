@@ -10,18 +10,18 @@ const confirm = useConfirm();
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-    (e: 'closeModal', status: string): void
- 
+  (e: 'closeModal', status: string): void
+
 }>()
 
 
 interface Props {
-    categoria: {
-      id: number
-  type: string
-  image: string
-  sort: number
-}
+  categoria: {
+    id: number
+    type: string
+    image: string | ArrayBuffer
+    sort: number
+  }
 }
 console.log(props)
 
@@ -39,12 +39,12 @@ const categoriesItem = reactive({
 });
 
 const uploadImg = (e) => {
-  
+
   let file = e.target.files[0];
 
   if (
 
-    file.size > 1024 * 1024 * 2
+    file.size > 1024 * 1024 * 1
   ) {
     isErrorTypeFile.value = true;
 
@@ -57,8 +57,7 @@ const uploadImg = (e) => {
     reader.onload = function (e) {
       categoriesItem.file = that.target.files[0];
       filesForAvatar.value =
-        "data:image/png;base64," +
-        e.target.result.substring(e.target.result.indexOf(",") + 1);
+        e.target.result;
     };
     textBtnFile.value = "Изменить";
   }
@@ -110,34 +109,34 @@ const submitForm = () => {
 }
 
 
-const delCategoria = async (event:any, id: number) => {
-    confirm.require({
-        target: event.currentTarget,
-        message: 'Удалить категорию?',
-        icon: 'pi pi-info-circle',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-            
-     try {       
-    const { data } = await axios.delete(`${apiMain}api/master/categories`,
-        {
+const delCategoria = async (event: any, id: number) => {
+  confirm.require({
+    target: event.currentTarget,
+    message: 'Удалить категорию?',
+    icon: 'pi pi-info-circle',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+
+      try {
+        const { data } = await axios.delete(`${apiMain}api/master/categories`,
+          {
             data: { id: id }
-        })
+          })
         emit('closeModal', 'delete')
-        
-    } catch (e) {
+
+      } catch (e) {
         console.log(e)
-    }
+      }
 
-        },
-        reject: () => {
-            console.log("отмена")
-        },
-        acceptLabel: "Да",
-        rejectLabel: "Нет",
+    },
+    reject: () => {
+      console.log("отмена")
+    },
+    acceptLabel: "Да",
+    rejectLabel: "Нет",
 
 
-    });
+  });
 
 
 
@@ -146,53 +145,51 @@ const delCategoria = async (event:any, id: number) => {
 </script>
 
 <template>
-
   <div class="p-fluid">
     <Toast />
-  <form @submit.prevent="submitForm">
-    <div class="img__group">
-         <div class="filegroup " >
-            <p >Изображение категории:</p>
-        <label for="file" class="selectfile"><i class="pi pi-upload form__icons"></i> {{ textBtnFile }}</label>
-          
-        <input hidden id="file" class="select" ref="imgInput" type="file" accept="image/jpeg,image/jpg"
-          @change="uploadImg($event)" />
-          <InlineMessage v-if="isErrorTypeFile" severity="error">Допустимый формат: только ".jpg, .jpeg". <br />
-          Максимальный размер файла: 2мб</InlineMessage>
-  
-      </div>
-      <div class="mt-3  products__items">
-         <img v-if="filesForAvatar" :src="filesForAvatar" alt="Image"  imageClass="image"/>
-      </div> 
-      </div> 
+    <form @submit.prevent="submitForm">
+      <div class="img__group">
+        <div class="filegroup ">
+          <p>Изображение категории:</p>
+          <label for="file" class="selectfile"><i class="pi pi-upload form__icons"></i> {{ textBtnFile }}</label>
 
-  <div class="formgrid grid">
-        <div class="field form__input col">          
-        <label for="productName">Название:</label>
-        <InputText require v-model.trim="categoriesItem.type" id="type" type="product" aria-describedby="productHelp" />
-      </div> 
-     </div>
-    
-    <div class="progressbar">
-      <ProgressBar :value="progress" v-if="onProgress" />
-    </div>    
-    <div class="btn__group-modal mt-5">
-      <Button type="submit" label="Сохранить" :loading="loading" class="p-button-raised" />
-    <Button label="Удалить" :loading="loading" severity="danger" @click="delCategoria($event, categoriesItem.id)" />
-    <ConfirmPopup></ConfirmPopup> 
-    </div>
-    
-  </form>
+          <input hidden id="file" class="select" ref="imgInput" type="file" accept="image/jpeg,image/jpg,image/png,.svg"
+            @change="uploadImg($event)" />
+          <InlineMessage v-if="isErrorTypeFile" severity="error">Максимальный размер файла: 1мб</InlineMessage>
+
+        </div>
+        <div class="mt-3  products__items">
+          <img v-if="filesForAvatar" :src="filesForAvatar" alt="Image" imageClass="image" />
+        </div>
+      </div>
+
+      <div class="formgrid grid">
+        <div class="field form__input col">
+          <label for="productName">Название:</label>
+          <InputText require v-model.trim="categoriesItem.type" id="type" type="product" aria-describedby="productHelp" />
+        </div>
+      </div>
+
+      <div class="progressbar">
+        <ProgressBar :value="progress" v-if="onProgress" />
+      </div>
+      <div class="btn__group-modal mt-5">
+        <Button type="submit" label="Сохранить" :loading="loading" class="p-button-raised" />
+        <Button label="Удалить" :loading="loading" severity="danger" @click="delCategoria($event, categoriesItem.id)" />
+        <ConfirmPopup></ConfirmPopup>
+      </div>
+
+    </form>
   </div>
 </template>
 
 <style scoped>
-
-.btn__group-modal{
+.btn__group-modal {
   display: flex;
   gap: 20px;
 }
-.selectfile{
+
+.selectfile {
   cursor: pointer;
 }
 
@@ -212,11 +209,13 @@ const delCategoria = async (event:any, id: number) => {
   transition: all 0.3s ease;
   width: 180px;
 }
+
 .products__items p {
   color: #898989;
   font-size: 20px;
   font-family: Roboto;
 }
+
 .products__items img {
   max-width: 100%;
   margin-bottom: 20px;
@@ -227,33 +226,34 @@ const delCategoria = async (event:any, id: number) => {
     font-size: 16px;
   }
 }
+
 @media (max-width: 420px) {
   .products__items {
     padding: 15px;
   }
+
   .products__items img {
     max-width: 80%;
     margin-bottom: 15px;
   }
 
 }
+
 @media (max-width: 340px) {
   .products__items {
     padding: 10px;
   }
+
   .products__items img {
     max-width: 70%;
     margin-bottom: 10px;
   }
+
   .products__items p {
     font-size: 14px;
   }
 
 }
-
-
-
-
 </style>
 
 

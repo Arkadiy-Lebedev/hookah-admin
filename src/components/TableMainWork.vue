@@ -9,6 +9,7 @@ import { useTablesList } from '../stores/tablesStore'
 import { ITables, ITablesInfo } from '../types/ITables'
 import ProductsList from './ProductsList.vue'
 
+
 const confirm = useConfirm()
 const dateStore = useDateStore()
 const tablesList = useTablesList()
@@ -18,6 +19,7 @@ const idBooking = ref<number>()
 const time = ref<string>(new Date())
 const phoneUser = ref<string>()
 const phoneName = ref<string>()
+const sale = ref<number>()
 
 const errors = ref<any>({
   timebusy: {
@@ -50,7 +52,12 @@ interface Props {
 }
 
 const totalPrice = computed((): ITables[] => {
-  const array = tablesList.ordersInBooking.reduce((acc, num) => acc + num.price * num.count, 0)
+  const array = tablesList.ordersInBooking.reduce((acc, num) => acc + num.price * num.count, 0)  
+  return array
+})
+
+const totalPriceSale = computed(() => {
+  const array = totalPrice.value -  (totalPrice.value * (sale.value/100))
   return array
 })
 
@@ -271,7 +278,15 @@ const confirm2 = (event, id) => {
     <TabPanel header="Заказ" v-if="isStatusActive">
       <div class="order__header">
         <p>Посадка: {{ isStatusActive.timeStart.split(' ')[1] }}</p>
-        <p class="order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
+        <div class="total">
+          <p class="order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
+          <div class="sale-box" v-if="sale>0">
+            <p>скидка: {{ sale }}%</p>
+            <p class="order__totel-text">Со скидкой: {{ totalPriceSale  }} руб.</p>
+          </div>
+          
+        </div>
+        
       </div>
 
       <div class="order__btn-group">
@@ -282,6 +297,16 @@ const confirm2 = (event, id) => {
           @click="confirm2($event, isStatusActive.id)"
           severity="danger"
         />
+            <Button
+            label="10%"
+            @click="sale = 10"
+            severity="help"
+          />
+          <Button
+              label="15%"
+              @click="sale = 15"
+              severity="help"
+            />
         <ConfirmPopup></ConfirmPopup>
       </div>
       <!-- @click="closeTable(isStatusActive.id)" -->
@@ -346,7 +371,7 @@ const confirm2 = (event, id) => {
         </ul>
       </div>
 
-      <InlineMessage class="orders" v-else severity="info">Бронь отсутствует</InlineMessage>
+      <InlineMessage class="orders" v-else-if="!isStatusActive" severity="info">Бронь отсутствует</InlineMessage>
     </TabPanel>
   </TabView>
 </template>

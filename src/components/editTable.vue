@@ -17,7 +17,7 @@ interface Props {
     table: {
   name: string
   description: string
-  image: string
+  image: string | ArrayBuffer
   id: number
 }
 }
@@ -56,8 +56,7 @@ const uploadImg = (e) => {
     reader.onload = function (e) {
       tableItem.file = that.target.files[0];
       filesForAvatar.value =
-        "data:image/png;base64," +
-        e.target.result.substring(e.target.result.indexOf(",") + 1);
+        e.target.result;
     };
     textBtnFile.value = "Изменить";
   }

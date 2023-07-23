@@ -79,7 +79,13 @@ tablesList.getTablesInDate(dateStore.dateInBooking)
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' } " :style="{ width: '50vw' }"
     :modal="true">
     <TableMainWork :dateCalendar="date" :tableSingle="singleTable" :tableInfoSingle="tableInfoSingle" @closeModal="closeModal"   />
-
+    <template #footer>
+          <p class="order__totel-text">Сумма заказа: 1000 руб.</p>
+            <div class="sale-box">
+              <p>скидка: 10%</p>
+              <p class="order__totel-text">Со скидкой: 900 руб.</p>
+            </div>
+      </template>
   </Dialog>
   <div class="main__bar">
     <div class="main__bar-btn-group">

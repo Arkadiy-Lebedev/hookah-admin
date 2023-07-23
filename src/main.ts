@@ -93,6 +93,7 @@ app.directive('tooltip', Tooltip);
 app.directive('badge', BadgeDirective);
 app.directive('ripple', Ripple);
 app.directive('styleclass', StyleClass);
+
 app.component('Dropdown', Dropdown);
 
 

@@ -6,7 +6,7 @@ import { apiMain } from '../api/api'
 const progress = ref()
 const textBtnFile = ref('загрузить')
 const isErrorTypeFile = ref<boolean>(false)
-const filesForAvatar = ref('')
+const filesForAvatar = ref(null)
 const loading = ref<boolean>(false)
 const onProgress = ref<boolean>(false)
 
@@ -55,10 +55,10 @@ const saleItem = reactive({
 })
 
 const uploadImg = (e) => {
-  const arrType = ['jpg', 'jpeg']
+  
   let file = e.target.files[0]
 
-  if (!arrType.includes(file.name.split('.').pop()) || file.size > 1024 * 1024 * 2) {
+  if (file.size > 1024 * 1024 * 1) {
     isErrorTypeFile.value = true
   } else {
     isErrorTypeFile.value = false
@@ -68,7 +68,7 @@ const uploadImg = (e) => {
     reader.onload = function (e) {
       saleItem.file = that.target.files[0]
       filesForAvatar.value =
-        'data:image/png;base64,' + e.target.result.substring(e.target.result.indexOf(',') + 1)
+        e.target.result;
     }
     textBtnFile.value = 'Изменить'
   }
@@ -171,12 +171,12 @@ const activeSale = async (id) => {
                   class="select"
                   ref="imgInput"
                   type="file"
-                  accept="image/jpeg,image/jpg"
+                  accept="image/jpeg,image/jpg,image/png,.svg"
                   @change="uploadImg($event)"
                 />
                 <InlineMessage v-if="isErrorTypeFile" severity="error"
-                  >Допустимый формат: только ".jpg, .jpeg". <br />
-                  Максимальный размер файла: 2мб</InlineMessage
+                  >
+                  Максимальный размер файла: 1мб</InlineMessage
                 >
               </div>
               <div v-if="filesForAvatar" class="products__items">
