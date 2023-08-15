@@ -9,9 +9,11 @@ import TableMainWork from "../components/TableMainWork.vue"
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 
+
 const tablesList = useTablesList();
 const dateStore = useDateStore();
 const toast = useToast();
+
 
 interface ITableSinglInfo {
   tables: ITables[],
@@ -24,6 +26,10 @@ const singleTable = ref<ITableSinglInfo>()
 const tableInfoSingle = ref<ITablesInfo>()
 const tableSingleNumber = ref<number>()
 const date = ref(new Date())
+
+const totalPrice = ref<number>(0)
+const salePrice = ref<number>(0)
+
 
 
 watch(date, () => {
@@ -66,7 +72,12 @@ date.value= new Date()
   
 }
 
-
+const saleEdit = (total, sale) => {
+  console.log(total)
+console.log(sale)
+  totalPrice.value = total
+salePrice.value = sale
+}
 
 dateStore.entryDate(new Date())
 tablesList.getTablesInDate(dateStore.dateInBooking)
@@ -78,12 +89,12 @@ tablesList.getTablesInDate(dateStore.dateInBooking)
   <Dialog :header="tableSingleNumber" v-model:visible="isModal"
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' } " :style="{ width: '50vw' }"
     :modal="true">
-    <TableMainWork :dateCalendar="date" :tableSingle="singleTable" :tableInfoSingle="tableInfoSingle" @closeModal="closeModal"   />
+    <TableMainWork :dateCalendar="date" :tableSingle="singleTable" :tableInfoSingle="tableInfoSingle" @closeModal="closeModal"  @saleEdit="saleEdit" />
     <template #footer>
-          <p class="order__totel-text">Сумма заказа: 1000 руб.</p>
-            <div class="sale-box">
-              <p>скидка: 10%</p>
-              <p class="order__totel-text">Со скидкой: 900 руб.</p>
+          <p class="mt-4 order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
+            <div  class="sale-box">
+              <p>Cкидка: {{ salePrice }}%</p>
+              <p class=" font-medium order__totel-text">Со скидкой: {{ totalPrice - (totalPrice * (salePrice / 100)) }} руб.</p>
             </div>
       </template>
   </Dialog>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { useConfirm } from 'primevue/useconfirm'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { apiMain } from '../api/api'
 import { socket } from '../socket'
 import { useDateStore } from '../stores/dateStore'
@@ -9,17 +9,22 @@ import { useTablesList } from '../stores/tablesStore'
 import { ITables, ITablesInfo } from '../types/ITables'
 import ProductsList from './ProductsList.vue'
 
+import { usePrinterStore } from '../stores/printer'
+
 
 const confirm = useConfirm()
 const dateStore = useDateStore()
 const tablesList = useTablesList()
 
+const printerStore = usePrinterStore()
+
 const isModalProducts = ref<boolean>(false)
+const isConnect = ref<boolean>(false)
 const idBooking = ref<number>()
 const time = ref<string>(new Date())
 const phoneUser = ref<string>()
 const phoneName = ref<string>()
-const sale = ref<number>()
+const sale = ref<number>(0)
 
 const errors = ref<any>({
   timebusy: {
@@ -39,7 +44,8 @@ const errors = ref<any>({
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  (e: 'closeModal', status?: string): void
+  (e: 'closeModal', status?: string): void,
+  (e: 'saleEdit', total: number, sale: number): void
 }>()
 
 interface Props {
@@ -51,11 +57,17 @@ interface Props {
   dateCalendar: string
 }
 
-const totalPrice = computed((): ITables[] => {
+const totalPrice = computed((): number => {  
   const array = tablesList.ordersInBooking.reduce((acc, num) => acc + num.price * num.count, 0)  
   return array
 })
 
+watch(totalPrice, () => {
+ emit('saleEdit', totalPrice.value, sale.value)  
+})
+emit('saleEdit', totalPrice.value, 0)
+
+ 
 const totalPriceSale = computed(() => {
   const array = totalPrice.value -  (totalPrice.value * (sale.value/100))
   return array
@@ -204,6 +216,141 @@ const confirm2 = (event, id) => {
     rejectLabel: 'Нет'
   })
 }
+
+
+    let characteristic
+const print = async () => {
+
+
+
+  if (!printerStore.isConnect) {
+    try {
+      await printerStore.getCharacteristic()
+      characteristic = printerStore.characteristic
+    }
+    catch {
+      console.log("нет подключения к принтеру")
+    }
+  } else {
+    characteristic = printerStore.characteristic
+  }
+
+  try {    
+    
+    let line = ""
+    let line2 = ""
+    let totalLine = ""
+    async function printRussianText() {
+      const setWindows1251Command = new Uint8Array([0x1B, 0x74, 17]);
+      const resetFontSizeCommand = new Uint8Array([0x1D, 0x21, 0x00]);
+      const leftalignmentCommand = new Uint8Array([0x1B, 0x61, 0x00]); // Выравнивание по левой стороне
+      const rightAlignmentCommand = new Uint8Array([0x1B, 0x61, 0x02]);// Выравнивание по правой стороне
+      const dotsLineCommand = new Uint8Array([0x1B, 0x2D, 0x01]);  // Команда для простановки точек на всю ширину
+      const resetdotsLineCommand = new Uint8Array([0x1B, 0x2D, 0x00]);
+      const fontSizeCommand = new Uint8Array([0x1D, 0x21, 1]); // Размер шрифта: 0 - обычный, 1 - двойной вертикальный, 2 - двойной горизонтальный, 3 - двойной по обоим направлениям
+
+    
+      await characteristic.writeValue(setWindows1251Command);
+      await characteristic.writeValue(resetFontSizeCommand);
+      await characteristic.writeValue(resetdotsLineCommand);
+      // await characteristic.writeValue(leftalignmentCommand);
+
+      await characteristic.writeValue(fontSizeCommand);
+      await characteristic.writeValue(utf8_to_866(`Hookah Bar`));
+      await characteristic.writeValue(resetFontSizeCommand);
+      await characteristic.writeValue(utf8_to_866(`\nДата: 21.08.2023\n`));
+
+      await characteristic.writeValue(dotsLineCommand);
+      await characteristic.writeValue(utf8_to_866(`        \n`));
+      await characteristic.writeValue(resetdotsLineCommand);
+
+      for (const product of tablesList.ordersInBooking) {
+
+        line = utf8_to_866(`${product.name}\n`);
+        await characteristic.writeValue(leftalignmentCommand);
+        await characteristic.writeValue(line);
+        line = utf8_to_866(`${product.count} * ${product.price}\n`);
+        await characteristic.writeValue(line);
+
+        line2 = utf8_to_866(`${product.count * product.price}\n`);
+        await characteristic.writeValue(rightAlignmentCommand);
+        await characteristic.writeValue(line2);
+
+      }
+
+      await characteristic.writeValue(dotsLineCommand);
+      await characteristic.writeValue(utf8_to_866(`        \n`));
+      await characteristic.writeValue(resetdotsLineCommand);
+
+
+
+
+      totalLine = utf8_to_866(`\n К оплате ${totalPrice.value}\n\n`);
+      await characteristic.writeValue(leftalignmentCommand);
+      await characteristic.writeValue(fontSizeCommand);
+      await characteristic.writeValue(totalLine);
+
+   if (sale.value > 0) {
+        totalLine = utf8_to_866(`\n Скидка ${sale.value}%\n`);
+        await characteristic.writeValue(totalLine);
+          totalLine = utf8_to_866(`Со скидкой ${totalPriceSale.value}\n`);
+        await characteristic.writeValue(totalLine);
+      }
+
+      await characteristic.writeValue(resetFontSizeCommand);  
+
+      await characteristic.writeValue(dotsLineCommand);
+      await characteristic.writeValue(utf8_to_866(`        \n`));
+      await characteristic.writeValue(resetdotsLineCommand);
+
+      await characteristic.writeValue(utf8_to_866(`\nВознаграждение официанта приветствуется, но всегда остается на Ваше усматрение\n\n\n\n\n`));
+
+      try {
+
+
+
+        console.log('Текст успешно отправлен на печать.');
+      } catch (error) {
+        console.error('Ошибка при отправке текста на печать:', error);
+      }
+    }
+
+
+    function utf8_to_866(aa) {
+      let c = 0;
+      let ab = new Uint8Array(aa.length);
+
+      for (let i = 0; i < aa.length; i++) {
+        c = aa.charCodeAt(i);
+        if (c >= 1040 && c <= 1087) {
+          ab[i] = c - 912;
+        } else if (c >= 1088 && c <= 1105) {
+          ab[i] = c - 864;
+        } else {
+          ab[i] = aa.charCodeAt(i);
+        }
+      }
+      return ab;
+    }
+
+
+
+    printRussianText();
+
+
+
+
+  } catch (error) {
+    console.error('Ошибка:', error);
+  }
+}
+
+const saleEdit = (num:number) => {
+  sale.value = num
+  emit('saleEdit', totalPrice.value, num)
+}
+
+
 </script>
 <template>
   <!-- {{ tableSingle }}
@@ -217,6 +364,7 @@ const confirm2 = (event, id) => {
   >
     <ProductsList :id-booking="idBooking" @closeModal="closeModal"></ProductsList>
   </Dialog>
+ 
   <div class="booking__btn-group">
 
     <Button
@@ -280,10 +428,10 @@ const confirm2 = (event, id) => {
         <p>Посадка: {{ isStatusActive.timeStart.split(' ')[1] }}</p>
         <div class="total">
           <p class="order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
-          <div class="sale-box" v-if="sale>0">
+          <!-- <div class="sale-box" v-if="sale>0">
             <p>скидка: {{ sale }}%</p>
             <p class="order__totel-text">Со скидкой: {{ totalPriceSale  }} руб.</p>
-          </div>
+          </div> -->
           
         </div>
         
@@ -291,7 +439,7 @@ const confirm2 = (event, id) => {
 
       <div class="order__btn-group">
         <Button label="Добавить" @click="isModalProducts = true" />
-        <Button label="Рассчитать" severity="success" />
+        <Button label="Рассчитать" @click="print" severity="success" />
         <Button
           label="Закрыть стол"
           @click="confirm2($event, isStatusActive.id)"
@@ -299,12 +447,12 @@ const confirm2 = (event, id) => {
         />
             <Button
             label="10%"
-            @click="sale = 10"
+            @click="saleEdit(10)"
             severity="help"
           />
           <Button
               label="15%"
-              @click="sale = 15"
+              @click="saleEdit(15)"
               severity="help"
             />
         <ConfirmPopup></ConfirmPopup>

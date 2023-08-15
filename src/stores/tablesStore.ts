@@ -93,7 +93,7 @@ export const useTablesList = defineStore('tablesList', () => {
       if (data) {
         const item = tables.value.find(el => el.id == id)
         item.status = "active"
-        return {status: true}
+        return { status: true }
       }
     } catch (e) {
       console.log(e)
