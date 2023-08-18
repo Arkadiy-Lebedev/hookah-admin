@@ -104,15 +104,19 @@ const activeBooking = async (id: number, tableId: number) => {
 
 const closeTable = async (id: number) => {
   console.log(id)
+  
   const { data } = await axios.put(`${apiMain}api/work/booking/succes`, {
-    id: id
+    id: id,
+    sale: sale.value,
+    totalPrice:totalPrice.value,
+    totalPriceSale:totalPriceSale.value
   })
 
   socket.emit('create', { name: '' }, (data) => {
-    console.log(data)
+    
   })
     emit('closeModal', "cancel")
-  console.log(data)
+ 
 }
 
 const isStatusActive = computed(() => {

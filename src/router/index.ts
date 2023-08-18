@@ -52,6 +52,16 @@ const router = createRouter({
                     path: '/sale',
                     name: 'sale',
                     component: () => import('@/views/Sale.vue')
+                },
+                 {
+                    path: '/revenue',
+                    name: 'revenue',
+                    component: () => import('@/views/Revenue.vue')
+                },
+                 {
+                    path: '/revenue-period',
+                    name: 'revenueperiod',
+                    component: () => import('@/views/RevenuePeriod.vue')
                 }
             ]
         },
