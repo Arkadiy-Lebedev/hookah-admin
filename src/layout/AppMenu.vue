@@ -66,13 +66,9 @@ const model = ref([
     {
         label: 'Аналитика',
         items: [    
+     
             {
-                label: 'Продажи', icon: 'pi pi-fw pi-ticket',               
-                to: '/revenue'
-
-            },
-            {
-                label: 'За период', icon: 'pi pi-fw pi-ticket',               
+                label: 'За период', icon: 'pi pi-fw pi-chart-bar',               
                 to: '/revenue-period'
 
             }

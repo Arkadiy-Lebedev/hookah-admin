@@ -10,7 +10,7 @@ import { ITables } from "../types/ITables"
 export const useTablesList = defineStore('tablesList', () => {
   const tables = ref<ITables[]>([])
   const ordersInBooking = ref([])
-
+  const isLoadingOrders = ref<boolean>(true)
 
   const getAllTables = async () => {
     try {
@@ -40,6 +40,7 @@ export const useTablesList = defineStore('tablesList', () => {
   const getOrderInBooking = async (id: number | undefined) => {
     console.log(56756756)
     console.log(id)
+    isLoadingOrders.value = true
     if (id) {
       try {
         console.log(id)
@@ -49,8 +50,10 @@ export const useTablesList = defineStore('tablesList', () => {
       } catch (e) {
         console.log(e)
       }
+      isLoadingOrders.value = false
     } else {
       ordersInBooking.value = []
+      isLoadingOrders.value = false
     }
 
   }
@@ -124,5 +127,5 @@ export const useTablesList = defineStore('tablesList', () => {
   })
 
 
-  return { tables, getAllTables, activeTables, busyTables, activeBooking, getTablesInDate, table1Info, getOrderInBooking, ordersInBooking, addOrderForBooking }
+  return { tables, getAllTables, activeTables, busyTables, activeBooking, getTablesInDate, table1Info, getOrderInBooking, ordersInBooking, addOrderForBooking, isLoadingOrders }
 })

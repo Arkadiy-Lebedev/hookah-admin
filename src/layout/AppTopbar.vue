@@ -22,9 +22,10 @@ onBeforeUnmount(() => {
 const onTopBarMenuButton = () => {
     topbarMenuActive.value = !topbarMenuActive.value;
 };
-const onSettingsClick = () => {
-    topbarMenuActive.value = false;
-    router.push('/documentation');
+const logOut = () => {
+   
+    localStorage.removeItem('token')
+    router.push({ name: 'auth' })
 };
 const topbarMenuClasses = computed(() => {
     return {
@@ -70,9 +71,9 @@ const isOutsideClicked = (event) => {
         </button>
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">  
-            <button @click="onSettingsClick()" class="p-link layout-topbar-button">
-                <i class="pi pi-cog"></i>
-                <span>Settings</span>
+            <button @click="logOut()" class="p-link layout-topbar-button">
+                <i class="pi pi-sign-out"></i>
+                <span>Выйти</span>
             </button>
         </div>
     </div>

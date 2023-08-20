@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ProgressSpinner from 'primevue/progressspinner';
 import axios from 'axios'
 import { useConfirm } from 'primevue/useconfirm'
 import { computed, ref, watch } from 'vue'
@@ -57,19 +58,19 @@ interface Props {
   dateCalendar: string
 }
 
-const totalPrice = computed((): number => {  
-  const array = tablesList.ordersInBooking.reduce((acc, num) => acc + num.price * num.count, 0)  
+const totalPrice = computed((): number => {
+  const array = tablesList.ordersInBooking.reduce((acc, num) => acc + num.price * num.count, 0)
   return array
 })
 
 watch(totalPrice, () => {
- emit('saleEdit', totalPrice.value, sale.value)  
+  emit('saleEdit', totalPrice.value, sale.value)
 })
 emit('saleEdit', totalPrice.value, 0)
 
- 
+
 const totalPriceSale = computed(() => {
-  const array = totalPrice.value -  (totalPrice.value * (sale.value/100))
+  const array = totalPrice.value - (totalPrice.value * (sale.value / 100))
   return array
 })
 
@@ -94,29 +95,29 @@ const activeBooking = async (id: number, tableId: number) => {
     errors.value.activework.text = 'Стол уже в работе!'
   } else {
     const resp = await tablesList.activeBooking(id)
-   
+
     socket.emit('create', { name: '' }, (data) => {
       console.log(data)
     })
-     emit('closeModal', "create")
+    emit('closeModal', "create")
   }
 }
 
 const closeTable = async (id: number) => {
   console.log(id)
-  
+
   const { data } = await axios.put(`${apiMain}api/work/booking/succes`, {
     id: id,
     sale: sale.value,
-    totalPrice:totalPrice.value,
-    totalPriceSale:totalPriceSale.value
+    totalPrice: totalPrice.value,
+    totalPriceSale: totalPriceSale.value
   })
 
   socket.emit('create', { name: '' }, (data) => {
-    
+
   })
-    emit('closeModal', "cancel")
- 
+  emit('closeModal', "cancel")
+
 }
 
 const isStatusActive = computed(() => {
@@ -155,15 +156,19 @@ const activeTableForAdmin = async (tableId: number) => {
 }
 
 const bookingTable = async (tableId: number) => {
-  console.log(time.value)
+
   let date = new Date(time.value)
-  let dateBase = `${
-    dateStore.dateInBooking
-  } ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+
+  let date3 = new Date(dateStore.dateInBooking)
+  date3.setHours(date.getHours(), date.getMinutes(), date.getSeconds())
+
+  let dateBase = `${dateStore.dateInBooking
+    } ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+
   let date2 = new Date(props.tableSingle.tables.filter((el) => el.status == 'busy')[0]?.timeStart)
   console.log(dateBase)
 
-  if (date.getTime() > date2.getTime()) {
+  if (date3.getTime() > date2.getTime()) {
     errors.value.timebusy.error = true
     errors.value.timebusy.text = 'Это время занято, выберите другое время!'
     console.log(' в это время занято, выберите другое время', date2)
@@ -184,10 +189,10 @@ const bookingTable = async (tableId: number) => {
 
   socket.emit('create', { name: '' }, (data) => {
     console.log(data)
-  
+
   })
   emit('closeModal', 'busy')
-  
+
   console.log(data)
 }
 
@@ -222,7 +227,7 @@ const confirm2 = (event, id) => {
 }
 
 
-    let characteristic
+let characteristic
 const print = async () => {
 
 
@@ -239,8 +244,8 @@ const print = async () => {
     characteristic = printerStore.characteristic
   }
 
-  try {    
-    
+  try {
+
     let line = ""
     let line2 = ""
     let totalLine = ""
@@ -253,7 +258,7 @@ const print = async () => {
       const resetdotsLineCommand = new Uint8Array([0x1B, 0x2D, 0x00]);
       const fontSizeCommand = new Uint8Array([0x1D, 0x21, 1]); // Размер шрифта: 0 - обычный, 1 - двойной вертикальный, 2 - двойной горизонтальный, 3 - двойной по обоим направлениям
 
-    
+
       await characteristic.writeValue(setWindows1251Command);
       await characteristic.writeValue(resetFontSizeCommand);
       await characteristic.writeValue(resetdotsLineCommand);
@@ -294,14 +299,14 @@ const print = async () => {
       await characteristic.writeValue(fontSizeCommand);
       await characteristic.writeValue(totalLine);
 
-   if (sale.value > 0) {
+      if (sale.value > 0) {
         totalLine = utf8_to_866(`\n Скидка ${sale.value}%\n`);
         await characteristic.writeValue(totalLine);
-          totalLine = utf8_to_866(`Со скидкой ${totalPriceSale.value}\n`);
+        totalLine = utf8_to_866(`Со скидкой ${totalPriceSale.value}\n`);
         await characteristic.writeValue(totalLine);
       }
 
-      await characteristic.writeValue(resetFontSizeCommand);  
+      await characteristic.writeValue(resetFontSizeCommand);
 
       await characteristic.writeValue(dotsLineCommand);
       await characteristic.writeValue(utf8_to_866(`        \n`));
@@ -349,7 +354,7 @@ const print = async () => {
   }
 }
 
-const saleEdit = (num:number) => {
+const saleEdit = (num: number) => {
   sale.value = num
   emit('saleEdit', totalPrice.value, num)
 }
@@ -359,35 +364,51 @@ const saleEdit = (num:number) => {
 <template>
   <!-- {{ tableSingle }}
 {{ isStatusActive }} -->
-  <Dialog
-    header="Товары"
-    v-model:visible="isModalProducts"
+  <Dialog header="Товары" v-model:visible="isModalProducts"
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' }"
-    :style="{ width: '60vw', height: '90vh' }"
-    :modal="true"
-  >
+    :style="{ width: '60vw', height: '90vh' }" :modal="true">
     <ProductsList :id-booking="idBooking" @closeModal="closeModal"></ProductsList>
   </Dialog>
- 
-  <div class="booking__btn-group">
 
-    <Button
-      :disabled="new Date().toLocaleDateString() !== new Date(dateCalendar).toLocaleDateString()"
-      v-if="!isStatusActive"
-      @click="activeTableForAdmin(tableInfoSingle[0].id)"
-      label="Посадка"
-      severity="success"
-      icon="pi pi-check-square"
-    />
-    <Button
-      v-styleclass="{ selector: '.datapicker__group', toggleClass: 'hidden' }"
-      class="btn__booking"
-      v-if="!isStatusActive"
-      type="button"
-      severity="warning"
-      icon="pi pi-calendar-times"
-      label="Забронировать"
-    />
+  <div >
+        <div v-if="tableSingle.tables.filter((el) => el.status == 'busy').length" class="orders">
+          <span class="block text-600 font-medium mb-1">Ожидает:</span>
+          <div class="error-message">
+            <InlineMessage v-if="errors.activework.error" severity="error">{{ errors.activework.text }}
+            </InlineMessage>
+          </div>
+          <ul v-for="(item, index) in tableSingle.tables.filter((el) => el.status == 'busy')" :key="item.id"
+            class="p-0 mx-0 mt-0 mb-4 list-none">
+            <li class="list__item flex align-items-center py-2 border-bottom-1 surface-border">
+              <!-- <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                        <i class="pi pi-dollar text-xl text-blue-500"></i>
+                    </div> -->
+              <span class="text__booking text-900 line-height-3"><span class="text-blue-500">{{ item.timeStart.split(' ')[1]
+              }}</span>
+                {{ item.phone }} {{ item.client_name }} {{ item.order_client }}
+                <!-- <span class="text-700"> описание </span>   -->
+              </span>
+
+              <div class="btn__group">
+                <Button @click="activeBooking(item.id, item.table_id)" v-if="index == 0" icon="pi pi-check"
+                  severity="warning" rounded aria-label="Bookmark" size="small" />
+                <Button @click="deleteBooking(item.id)" icon="pi pi-times" severity="danger" rounded aria-label="Bookmark"
+                  size="small" />
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <InlineMessage class="orders" v-else-if="!isStatusActive" severity="info">Бронь отсутствует</InlineMessage>
+      </div>
+
+
+  <div class="booking__btn-group">
+    <Button :disabled="new Date().toLocaleDateString() !== new Date(dateCalendar).toLocaleDateString()"
+      v-if="!isStatusActive" @click="activeTableForAdmin(tableInfoSingle[0].id)" label="Посадка" severity="success"
+      icon="pi pi-check-square" />
+    <Button v-styleclass="{ selector: '.datapicker__group', toggleClass: 'hidden' }" class="btn__booking"
+      v-if="!isStatusActive" type="button" severity="warning" icon="pi pi-calendar-times" label="Забронировать" />
   </div>
   <div class="error-message">
     <InlineMessage v-if="errors.activebusy.error" severity="error">{{
@@ -401,24 +422,12 @@ const saleEdit = (num:number) => {
         <label for="username">Имя</label>
       </span>
       <span class="p-float-label">
-        <InputMask
-          id="phone"
-          v-model="phoneUser"
-          mask="+7999-999-99-99"
-          placeholder="+7999-999-99-99"
-        />
+        <InputMask id="phone" v-model="phoneUser" mask="+7999-999-99-99" placeholder="+7999-999-99-99" />
         <label for="phone">Телефон</label>
       </span>
     </div>
 
-    <Calendar
-      class="datapicker"
-      id="calendar-timeonly"
-      v-model="time"
-      timeOnly
-      touchUI
-      :stepMinute="10"
-    />
+    <Calendar class="datapicker" id="calendar-timeonly" v-model="time" timeOnly touchUI :stepMinute="10" />
     <Button label="ОК" @click="bookingTable(tableInfoSingle[0].id)" severity="warning" />
     <div class="error-message">
       <InlineMessage v-if="errors.timebusy.error" severity="error">{{
@@ -429,41 +438,30 @@ const saleEdit = (num:number) => {
   <TabView>
     <TabPanel header="Заказ" v-if="isStatusActive">
       <div class="order__header">
-        <p>Посадка: {{ isStatusActive.timeStart.split(' ')[1] }}</p>
+        <p>Посадка: {{ isStatusActive?.timeStart.split(' ')[1] }}</p>
         <div class="total">
           <p class="order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
           <!-- <div class="sale-box" v-if="sale>0">
             <p>скидка: {{ sale }}%</p>
             <p class="order__totel-text">Со скидкой: {{ totalPriceSale  }} руб.</p>
           </div> -->
-          
+
         </div>
-        
+
       </div>
 
       <div class="order__btn-group">
         <Button label="Добавить" @click="isModalProducts = true" />
         <Button label="Рассчитать" @click="print" severity="success" />
-        <Button
-          label="Закрыть стол"
-          @click="confirm2($event, isStatusActive.id)"
-          severity="danger"
-        />
-            <Button
-            label="10%"
-            @click="saleEdit(10)"
-            severity="help"
-          />
-          <Button
-              label="15%"
-              @click="saleEdit(15)"
-              severity="help"
-            />
+        <Button label="Закрыть стол" @click="confirm2($event, isStatusActive.id)" severity="danger" />
+        <Button label="10%" @click="saleEdit(10)" severity="help" />
+        <Button label="15%" @click="saleEdit(15)" severity="help" />
         <ConfirmPopup></ConfirmPopup>
       </div>
       <!-- @click="closeTable(isStatusActive.id)" -->
       <div class="orders">
-        <DataTable :value="tablesList.ordersInBooking" class="p-datatable-sm">
+
+        <DataTable :value="tablesList.ordersInBooking" class="p-datatable-sm" :loading="tablesList.isLoadingOrders">
           <!-- <Column field="id" header="id"></Column> -->
           <Column field="name" header="Название"></Column>
           <Column field="price" header="Цена"></Column>
@@ -474,57 +472,41 @@ const saleEdit = (num:number) => {
             </template>
           </Column>
         </DataTable>
+
+
+
       </div>
     </TabPanel>
 
-    <TabPanel header="Бронь">
+    <!-- <TabPanel header="Бронь">
       <div v-if="tableSingle.tables.filter((el) => el.status == 'busy').length" class="orders">
         <span class="block text-600 font-medium mb-1">Ожидает:</span>
         <div class="error-message">
-          <InlineMessage v-if="errors.activework.error" severity="error"
-            >{{ errors.activework.text }}
+          <InlineMessage v-if="errors.activework.error" severity="error">{{ errors.activework.text }}
           </InlineMessage>
         </div>
-        <ul
-          v-for="(item, index) in tableSingle.tables.filter((el) => el.status == 'busy')"
-          :key="item.id"
-          class="p-0 mx-0 mt-0 mb-4 list-none"
-        >
+        <ul v-for="(item, index) in tableSingle.tables.filter((el) => el.status == 'busy')" :key="item.id"
+          class="p-0 mx-0 mt-0 mb-4 list-none">
           <li class="list__item flex align-items-center py-2 border-bottom-1 surface-border">
-            <!-- <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                        <i class="pi pi-dollar text-xl text-blue-500"></i>
-                    </div> -->
-            <span class="text__booking text-900 line-height-3"
-              ><span class="text-blue-500">{{ item.timeStart.split(' ')[1] }}</span>
+           
+            <span class="text__booking text-900 line-height-3"><span class="text-blue-500">{{ item.timeStart.split(' ')[1]
+            }}</span>
               {{ item.phone }} {{ item.client_name }} {{ item.order_client }}
-              <!-- <span class="text-700"> описание </span>   -->
+         
             </span>
 
             <div class="btn__group">
-              <Button
-                @click="activeBooking(item.id, item.table_id)"
-                v-if="index == 0"
-                icon="pi pi-check"
-                severity="warning"
-                rounded
-                aria-label="Bookmark"
-                size="small"
-              />
-              <Button
-                @click="deleteBooking(item.id)"
-                icon="pi pi-times"
-                severity="danger"
-                rounded
-                aria-label="Bookmark"
-                size="small"
-              />
+              <Button @click="activeBooking(item.id, item.table_id)" v-if="index == 0" icon="pi pi-check"
+                severity="warning" rounded aria-label="Bookmark" size="small" />
+              <Button @click="deleteBooking(item.id)" icon="pi pi-times" severity="danger" rounded aria-label="Bookmark"
+                size="small" />
             </div>
           </li>
         </ul>
       </div>
 
       <InlineMessage class="orders" v-else-if="!isStatusActive" severity="info">Бронь отсутствует</InlineMessage>
-    </TabPanel>
+    </TabPanel> -->
   </TabView>
 </template>
 

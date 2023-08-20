@@ -2,15 +2,18 @@
 import { ref, watch, computed } from 'vue'
 import axios from 'axios'
 import { apiMain } from '../api/api'
-import MoreOrder from '../components/moreOrder.vue'
 
-const isModalOrder = ref<boolean>(false)
+import TrTable from '../components/TrTable.vue'
+
+
 
 const ordersMaster = ref()
-const orderId = ref<number>(0)
+
 const ordersMasterGroup = ref({})
 const ordersMasterGroupTable = ref({})
 const date = ref([])
+const allTotal = ref<number>(0)
+const allCheck = ref<number>(0)
 
 const chartData = ref({
     labels: Object.keys(ordersMasterGroup.value),
@@ -39,6 +42,11 @@ const getOrders = async (arr) => {
 
 }
 
+const numberRussion = (num:number) => {
+  return num.toLocaleString('ru-RU', { maximumFractionDigits: 2 })
+
+}
+
 
 watch(date, async () => { 
 console.log(date.value)
@@ -52,6 +60,9 @@ console.log(date.value)
     dateOne:dates[0],
     dateTwo:dates[1],
   })
+
+allTotal.value = data.data.reduce((acc, num) => acc + num.total_price, 0)
+    allCheck.value = data.data.length
 
   ordersMaster.value = data
   ordersMasterGroup.value = data.data.reduce((acc, c) => (c.dateStart in acc ? acc[c.dateStart].push(c) : acc[c.dateStart] = [c], acc), {});
@@ -132,27 +143,12 @@ el.array = Object.values(groupedArrayDate)
 
 getOrders([new Date(), new Date()])
 
-const openOrder =(id:number)=> {
-  orderId.value = id
-  isModalOrder.value= true
-}
 
-const closeModal = () => {
-  isModalOrder.value = false
-}
 
 
 </script>
 <template>
-    <Dialog
-    header="Товары"
-    v-model:visible="isModalOrder"
-    :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' }"
-    :style="{ width: '60vw' }"
-    :modal="true"
-  >
-    <MoreOrder :id="orderId" @closeModal="closeModal"></MoreOrder>
-  </Dialog>
+
 
   <div class="grid">
 
@@ -160,9 +156,11 @@ const closeModal = () => {
       <div class="card mb-0">
         <h5 class="mb-5">Аналитика:: </h5>
         <Calendar v-model="date" dateFormat="dd.mm.yy" showIcon touchUI  selectionMode="range" :manualInput="false"/> 
- 
 
-<br>
+
+ <br>
+<!-- {{ ordersMasterGroup }} -->
+
 
 
         <div class="card__items">
@@ -172,12 +170,35 @@ const closeModal = () => {
 
         </div>
 
-        {{ Object.values(ordersMasterGroupTable) }}   
+        <!-- {{ Object.values(ordersMasterGroupTable) }}    -->
 
 <br>
+
+<div class="items">
+  <div class="item">
+    <div class="item__text">
+      <p class="item__text-title ">Выручка</p>
+       <p class="item__text-subtitle ">{{ numberRussion(allTotal) }} руб.</p>
+    </div>    
+  </div>
+
+  <div class="item">
+    <div class="item__text">
+      <p class="item__text-title ">Средний чек</p>
+       <p class="item__text-subtitle ">{{ numberRussion(allTotal / allCheck) }} руб.</p>
+    </div>    
+  </div>
+   <div class="item">
+    <div class="item__text">
+      <p class="item__text-title ">Чеки</p>
+       <p class="item__text-subtitle ">{{ allCheck }}</p>
+    </div>    
+  </div>
+
+</div>
 <br>
 
-  <div v-for="(elem, i) of Object.values(ordersMasterGroupTable)" :key="elem.table">
+  <!-- <div v-for="(elem, i) of Object.values(ordersMasterGroupTable)" :key="elem.table">
 <br>
     стол {{elem.table}}  доход  {{elem.total}} без скидки {{ elem.dohod }} чеков: {{ elem.check }} 
     
@@ -186,19 +207,99 @@ const closeModal = () => {
     дата {{el.date}} заработано {{el.total}} без скидки {{el.dohod}} чеков: {{ el.check }} 
 
       <div v-for="(element, i) of el.array" :key="element.bookingId">
-    номер заказа <p @click="openOrder(element.bookingId)"> {{ element.bookingId }} </p> доход {{ element.total_price }} без скидки {{ element.total }}
+    номер заказа <p @click="openOrder(element.bookingId, el.date)"> {{ element.bookingId }} </p> доход {{ element.total_price }} без скидки {{ element.total }}
       </div>
 
       </div>
-  </div>
+  </div> -->
 
-       
-      </div>
-    </div>
+
+
+  <table>
+            <tr>
+                <th></th>
+                <th>Дата продажи</th>
+                <th>Количество чеков</th>
+                <th>Сумма продажи</th>
+                <th>Средний чек</th>
+                <th>Итоговая скидка</th>
+            </tr>
+
+           <TrTable v-for="(elem) of Object.values(ordersMasterGroupTable)" :key="elem.table" :arrays="elem"/>
+           
+
+            <!-- Добавьте другие строки таблицы по аналогии -->
+        </table>       
+      </div>      
+    </div>     
   </div>
 
 </template>
 
 <style scoped>
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
+tr, th {
+    vertical-align: middle;
+    text-align: center;
+    background-color: rgba(238, 242, 255, 1);
+   border: 1px solid rgba(206, 206, 206, 1); 
+    border-spacing:0 !important;
+      padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 0.3rem;
+    padding-top: 0.3rem;
+  
+    color: #3F3F3F;
+font-family: Inter;
+font-size: 14px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+
+}
+
+.items{
+  display: flex;
+  justify-content: space-around;
+}
+.item{
+  border-radius: 5px;
+background: #E9F0F6;
+
+}
+
+.item__text{
+padding-top:0.5rem;
+padding-bottom: 0.5rem;
+padding-left: 4rem;
+padding-right: 4rem;
+}
+
+.item__text p{
+margin: 0;
+}
+
+.item__text-title {color: #3F3F3F;
+font-family: Inter;
+font-size: 12px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+text-align:center
+}
+
+.item__text-subtitle {
+  color: #37A2FE;
+font-family: Inter;
+font-size: 12px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+text-align:center;
+margin-top:5px !important;
+}
 </style>

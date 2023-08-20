@@ -8,8 +8,9 @@ import { ITables, ITablesInfo } from "../types/ITables"
 import TableMainWork from "../components/TableMainWork.vue"
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
 
-
+const router = useRouter();
 const tablesList = useTablesList();
 const dateStore = useDateStore();
 const toast = useToast();
@@ -82,6 +83,11 @@ salePrice.value = sale
 dateStore.entryDate(new Date())
 tablesList.getTablesInDate(dateStore.dateInBooking)
 
+const logOut = () => {
+console.log(34)
+  router.push({ name: 'auth' })
+};
+
 </script>
 <template>
         <Toast />
@@ -90,8 +96,8 @@ tablesList.getTablesInDate(dateStore.dateInBooking)
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' } " :style="{ width: '50vw' }"
     :modal="true">
     <TableMainWork :dateCalendar="date" :tableSingle="singleTable" :tableInfoSingle="tableInfoSingle" @closeModal="closeModal"  @saleEdit="saleEdit" />
-    <template #footer>
-          <p class="mt-4 order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
+    <template v-if="totalPrice>0" #footer>
+          <p class="mt-1 order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
             <div  class="sale-box">
               <p>Cкидка: {{ salePrice }}%</p>
               <p class=" font-medium order__totel-text">Со скидкой: {{ totalPrice - (totalPrice * (salePrice / 100)) }} руб.</p>
@@ -103,7 +109,10 @@ tablesList.getTablesInDate(dateStore.dateInBooking)
       <Calendar v-model="date" dateFormat="dd.mm.yy" showIcon touchUI :minDate="new Date()"/> 
       <Button @click="clearDate" icon="pi pi-check" severity="warning"  label="Сбросить дату"  />
     </div>
-    <i class="out__icon pi pi-sign-out" style="font-size: 2rem"></i> 
+    <div class="log-out" @click="logOut">
+      <i class="out__icon pi pi-sign-out" style="font-size: 2rem"></i> 
+    </div>
+    
   </div>
 
   <div class="main__wrapper">
@@ -1738,6 +1747,10 @@ tablesList.getTablesInDate(dateStore.dateInBooking)
   top: 0;
   left: 0;
   position: absolute;
+}
+
+.log-out{
+  cursor:pointer;
 }
 
 </style>
