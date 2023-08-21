@@ -3,13 +3,13 @@ import { defineStore } from 'pinia'
 import axios from 'axios';
 
 import { apiMain } from "../api/api"
-import { ITables } from "../types/ITables"
+import type { ITables } from "../types/ITables"
 
 
 
 export const useTablesList = defineStore('tablesList', () => {
   const tables = ref<ITables[]>([])
-  const ordersInBooking = ref([])
+  const ordersInBooking = ref<any>([])
   const isLoadingOrders = ref<boolean>(true)
 
   const getAllTables = async () => {
@@ -80,14 +80,17 @@ export const useTablesList = defineStore('tablesList', () => {
   })
   const busyTables = computed(() => {
     const newArray = tables.value.filter((el) => el.status == "busy")
-    const dataGodeGroup = newArray.reduce((acc, c) => (c.timeStart.split(' ')[0] in acc ? acc[c.timeStart.split(' ')[0]].push(c) : acc[c.timeStart.split(' ')[0]] = [c], acc), {});
+    const dataGodeGroup: { [key: string]: any[] } = newArray.reduce((acc, c) => (c.timeStart.split(' ')[0] in acc ? acc[c.timeStart.split(' ')[0]].push(c) : acc[c.timeStart.split(' ')[0]] = [c], acc), {} as { [key: string]: any[] });
     console.log(dataGodeGroup)
     return dataGodeGroup
   })
 
   const activeBooking = async (id: number) => {
     const item = tables.value.find(el => el.id == id)
-    item.status = "active"
+    if(item){
+         item.status = "active"
+    }
+ 
     try {
       const { data } = await axios.post(`${apiMain}api/admin/action_table`, {
         id: id
@@ -95,7 +98,9 @@ export const useTablesList = defineStore('tablesList', () => {
 
       if (data) {
         const item = tables.value.find(el => el.id == id)
+         if(item){
         item.status = "active"
+         }
         return { status: true }
       }
     } catch (e) {
@@ -105,7 +110,7 @@ export const useTablesList = defineStore('tablesList', () => {
   }
 
 
-  const table1Info = computed(() => (n): { tables: ITables[], status: string } => {
+  const table1Info = computed(() => (n:number): { tables: ITables[], status: string } => {
     let status = "free"
 
     const newArray = tables.value.filter((el) => el.number == n)

@@ -11,7 +11,7 @@ productsList.getProducts()
 productsList.getCategories()
 
 interface Props {
-    idBooking: number   
+    idBooking: number 
 }
 
 const emit = defineEmits<{

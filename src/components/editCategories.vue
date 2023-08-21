@@ -19,16 +19,16 @@ interface Props {
   categoria: {
     id: number
     type: string
-    image: string | ArrayBuffer
+    image: string | ArrayBuffer | null
     sort: number
-  }
+  } | undefined
 }
 console.log(props)
 
 const progress = ref()
 const textBtnFile = ref("изменить")
 const isErrorTypeFile = ref<boolean>(false)
-const filesForAvatar = ref(props.categoria.image);
+const filesForAvatar = ref(props.categoria ? props.categoria.image : null);
 const loading = ref<boolean>(false)
 const onProgress = ref<boolean>(false)
 
@@ -39,9 +39,9 @@ interface CategoriesItem {
 }
 
 const categoriesItem = reactive<CategoriesItem>({
-  id: props.categoria.id,
+  id: props.categoria ? props.categoria.id : 0,
   file: "",
-  type: props.categoria.type
+  type: props.categoria ? props.categoria.type : ""
 });
 
 const uploadImg = (e:any) => {
@@ -174,7 +174,7 @@ const delCategoria = async (event: any, id: number) => {
 
         </div>
         <div class="mt-3  products__items">
-          <img v-if="filesForAvatar" :src="filesForAvatar" alt="Image" imageClass="image" />
+          <img v-if="filesForAvatar" :src="typeof filesForAvatar === 'string' ? filesForAvatar : ''" alt="Image" imageClass="image" />
         </div>
       </div>
 

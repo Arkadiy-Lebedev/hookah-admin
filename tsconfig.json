@@ -14,11 +14,9 @@
     // использование более строгого вывода типов для свойств данных в `this`
     "strict": true,
     "jsx": "preserve",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "allowJs": true
   },
-  "include": [
-  "./src/*.ts",
-  "./src/*.vue",
-  "./src/*.ext",
-]
+  "include": ["./src/*.ts", "./src/*.vue", "./src/*.ext"]
 }

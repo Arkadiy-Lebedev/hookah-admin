@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios';
-import { IProduct, ICategories } from '../types/Iproduct'
+import type { IProduct, ICategories } from '../types/Iproduct'
 import { apiMain } from "../api/api"
 
 interface ICountProduct extends IProduct {
@@ -19,19 +19,19 @@ export const useProductsList = defineStore('productsList', () => {
         try {
             const { data } = await axios.get(`${apiMain}api/products`)
             console.log(data.data)
-            const newArray = data.data.map((el) => el = { ...el, count: 1 }) 
+            const newArray = data.data.map((el:any) => el = { ...el, count: 1 }) 
             products.value = newArray 
         } catch (e) {
             console.log(e)
         }
     }
 
-    const getProductsInCategores = async (idCategories) => {
+    const getProductsInCategores = async (idCategories:number) => {
         try {
             
             const { data } = await axios.post(`${apiMain}api/products/categories`, { id: idCategories })
             console.log(data.data)
-            const newArray = data.data.map((el) => el = { ...el, count: 1 })
+            const newArray = data.data.map((el:any) => el = { ...el, count: 1 })
             products.value = newArray
         } catch (e) {
             console.log(e)

@@ -18,9 +18,9 @@ const ModalStore = useModalStore()
 const productsList = useProductsList()
 productsList.getProducts()
 
-const loading1 = ref(null)
+const loading1 = ref<boolean>(false)
 const deleteProductDialog = ref(false)
-const productForDel = ref(null)
+const productForDel = ref<any>()
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -40,7 +40,7 @@ const showModalEdit = (id: number) => {
   ModalStore.modalEditProduct = true
 }
 
-const toastAction = (status) => {
+const toastAction = (status:string) => {
   console.log(status)
   console.log(6666)
   if (status == 'success') {
@@ -54,12 +54,12 @@ const toastAction = (status) => {
   ModalStore.modalAddProduct = false
 }
 
-const delcofirm = (data) => {
+const delcofirm = (data:any) => {
   deleteProductDialog.value = true
   productForDel.value = data
 }
 
-const delProduct = async (id) => {
+const delProduct = async (id:number) => {
   try {
     const { data } = await axios.delete(`${apiMain}api/products`, {
       data: { id: id }
@@ -159,7 +159,7 @@ const delProduct = async (id) => {
     <div class="confirmation-content">
       <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
       <span v-if="productForDel"
-        >Вы действительно хотите удалить товар: <b>{{ productForDel.name }}</b
+        >Вы действительно хотите удалить товар: <b>{{ productForDel.name ? productForDel.name : '' }}</b
         >?</span
       >
     </div>

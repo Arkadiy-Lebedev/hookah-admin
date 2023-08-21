@@ -15,7 +15,12 @@ const filesForAvatar = ref("");
 const loading = ref<boolean>(false)
 const onProgress = ref<boolean>(false)
 
-const pushItem = reactive({ //затипизтировать
+interface IPushItem {
+    title: string,
+    body: string
+}
+
+const pushItem = reactive<IPushItem>({ 
     title: "",
     body: "",
 
@@ -42,16 +47,19 @@ const submitForm = () => {
     onProgress.value = true;
     let formData = new FormData();
     for (let key in pushItem) {
-        formData.append(key, pushItem[key]);
+        const typedKey = key as keyof IPushItem
+        formData.append(typedKey, pushItem[typedKey]);
     }
 
     axios
         .post(`${apiMain}api/sendpush`, pushItem, {
             onUploadProgress: (e) => {
+                if (e.total !== undefined && e.loaded !== undefined) {
                 progress.value = Math.min(
                     Math.round((e.loaded * 100) / e.total),
                     99
                 );
+                }
             },
         })
         .then((data) => {

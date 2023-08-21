@@ -10,8 +10,10 @@ import TrTable from '../components/TrTable.vue'
 const ordersMaster = ref()
 
 const ordersMasterGroup = ref({})
-const ordersMasterGroupTable = ref({})
-const date = ref([])
+// const ordersMasterGroupTable = ref({})
+const ordersMasterGroupTable = ref<Object >({})
+
+const date = ref<[any]>([null])
 const allTotal = ref<number>(0)
 const allCheck = ref<number>(0)
 
@@ -37,7 +39,7 @@ const chartOptions = ref({
 
 
 
-const getOrders = async (arr) => {
+const getOrders = async (arr:any) => {
   date.value = arr
 
 }
@@ -61,11 +63,11 @@ console.log(date.value)
     dateTwo:dates[1],
   })
 
-allTotal.value = data.data.reduce((acc, num) => acc + num.total_price, 0)
+allTotal.value = data.data.reduce((acc:number, num:any) => acc + num.total_price, 0)
     allCheck.value = data.data.length
 
   ordersMaster.value = data
-  ordersMasterGroup.value = data.data.reduce((acc, c) => (c.dateStart in acc ? acc[c.dateStart].push(c) : acc[c.dateStart] = [c], acc), {});
+  ordersMasterGroup.value = data.data.reduce((acc: any, c:any) => (c.dateStart in acc ? acc[c.dateStart].push(c) : acc[c.dateStart] = [c], acc), {} as any);
 
   } else {
     return
@@ -73,22 +75,39 @@ allTotal.value = data.data.reduce((acc, num) => acc + num.total_price, 0)
 
 
   
+  interface Order {
+  bookingId: number;
+  number: number;
+  timeStart: string;
+  dateStart: string;
+  status: string;
+  sales: any;
+  total: any;
+  total_price: number | null;
+}
+
+
+
+const totalPrices: number[] = Object.values(ordersMasterGroup.value).map((group: any[any]) => {
+  return group.reduce((acc: number, num: any) => acc + (num.total_price || 0), 0);
+});
+  
   chartData.value = {
     labels: Object.keys(ordersMasterGroup.value),
     datasets: [
         {
             label: 'Доход',
-            data: Object.values(ordersMasterGroup.value).map(el => el.reduce((acc, num) => acc +num.total_price, 0)),
+            data: totalPrices,
             backgroundColor: ['rgba(255, 159, 64, 0.2)'],
             borderColor: ['rgb(255, 159, 64)'],
             borderWidth: 1
         }
     ]
 }
-
+// Object.values(ordersMasterGroup.value).map(el => el.reduce((acc:number, num:any) => acc +num.total_price, 0)),
 
 //группировка по столам
-const groupedArray = ordersMaster.value.data.reduce((acc, obj) => {
+const groupedArray = ordersMaster.value.data.reduce((acc:any, obj:any) => {
   const date = obj.number;
   if (!acc[date]) {
     acc[date] = {
@@ -103,7 +122,7 @@ const groupedArray = ordersMaster.value.data.reduce((acc, obj) => {
   acc[date].total += obj.total_price;
   acc[date].dohod += obj.total;
   acc[date].check =  acc[date].check + 1;
-  return acc;
+  return acc as any;
 }, {});
 
 ordersMasterGroupTable.value = groupedArray
@@ -112,9 +131,9 @@ ordersMasterGroupTable.value = groupedArray
 
 
 //группировка по дням
-Object.values(ordersMasterGroupTable.value).forEach(el => {
+Object.values(ordersMasterGroupTable.value).forEach((el: any) => {
  
-  const groupedArrayDate =   el.array.reduce((acc, obj) => {
+  const groupedArrayDate =   el.array.reduce((acc:any, obj:any) => {
   const date = obj.dateStart;
   if (!acc[date]) {
     acc[date] = {
@@ -131,7 +150,7 @@ Object.values(ordersMasterGroupTable.value).forEach(el => {
    acc[date].check =  acc[date].check + 1;
   
   return acc;
-}, {});
+}, {} as any);
 
 
 el.array = Object.values(groupedArrayDate)
@@ -144,7 +163,14 @@ el.array = Object.values(groupedArrayDate)
 getOrders([new Date(), new Date()])
 
 
+interface TableArray {
+  table: number,
+  array: [any],
+  total: number,
+  dohod: number,
+  check: number
 
+}
 
 </script>
 <template>
@@ -159,7 +185,7 @@ getOrders([new Date(), new Date()])
 
 
  <br>
-<!-- {{ ordersMasterGroup }} -->
+{{ Object.values(ordersMasterGroup) }}
 
 
 
@@ -224,8 +250,8 @@ getOrders([new Date(), new Date()])
                 <th>Средний чек</th>
                 <th>Итоговая скидка</th>
             </tr>
-
-           <TrTable v-for="(elem) of Object.values(ordersMasterGroupTable)" :key="elem.table" :arrays="elem"/>
+            
+           <TrTable v-for="(elem) of Object.values(ordersMasterGroupTable)" :key="(elem.table)" :arrays="elem"/>
            
 
             <!-- Добавьте другие строки таблицы по аналогии -->

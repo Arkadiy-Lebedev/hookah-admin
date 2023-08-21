@@ -4,7 +4,7 @@ import { apiMain } from "../api/api"
 import { ref, watch } from 'vue';
 import { useTablesList } from '../stores/tablesStore'
 import { useDateStore } from '../stores/dateStore'
-import { ITables, ITablesInfo } from "../types/ITables"
+import type { ITables, ITablesInfo } from "../types/ITables"
 import TableMainWork from "../components/TableMainWork.vue"
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
@@ -25,8 +25,8 @@ interface ITableSinglInfo {
 const isModal = ref<boolean>(false)
 const singleTable = ref<ITableSinglInfo>()
 const tableInfoSingle = ref<ITablesInfo>()
-const tableSingleNumber = ref<number>()
-const date = ref(new Date())
+const tableSingleNumber = ref<string>()
+const date = ref<Date>(new Date())
 
 const totalPrice = ref<number>(0)
 const salePrice = ref<number>(0)
@@ -48,7 +48,7 @@ const getTable = async (tableInfo: ITableSinglInfo, number: number) => {
   
 }
 
-const closeModal = (status) => {
+const closeModal = (status:string|undefined) => {
   console.log(89898)
   console.log(status)
   if(status == "busy"){
@@ -73,7 +73,7 @@ date.value= new Date()
   
 }
 
-const saleEdit = (total, sale) => {
+const saleEdit = (total:number, sale:number) => {
   console.log(total)
 console.log(sale)
   totalPrice.value = total
@@ -95,7 +95,7 @@ console.log(34)
   <Dialog :header="tableSingleNumber" v-model:visible="isModal"
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' } " :style="{ width: '50vw' }"
     :modal="true">
-    <TableMainWork :dateCalendar="date" :tableSingle="singleTable" :tableInfoSingle="tableInfoSingle" @closeModal="closeModal"  @saleEdit="saleEdit" />
+    <TableMainWork :dateCalendar="date" :tableSingle="singleTable" :tableInfoSingle="tableInfoSingle ? [tableInfoSingle] : []" @closeModal="closeModal"  @saleEdit="saleEdit" />
     <template v-if="totalPrice>0" #footer>
           <p class="mt-1 order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
             <div  class="sale-box">

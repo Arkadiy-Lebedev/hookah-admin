@@ -26,7 +26,7 @@ console.log(props)
 getOrder()
 
 const totalPrice = computed((): number => {
-  const array = orders.value?.data.reduce((acc, num) => acc + num.price * num.count, 0)
+  const array = orders.value?.data.reduce((acc: number, num:any) => acc + num.price * num.count, 0)
   return array
 })
 

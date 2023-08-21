@@ -4,10 +4,11 @@ import axios from 'axios'
 import { useConfirm } from 'primevue/useconfirm'
 import { computed, ref, watch } from 'vue'
 import { apiMain } from '../api/api'
+// @ts-ignore
 import { socket } from '../socket'
 import { useDateStore } from '../stores/dateStore'
 import { useTablesList } from '../stores/tablesStore'
-import { ITables, ITablesInfo } from '../types/ITables'
+import type { ITables, ITablesInfo } from '../types/ITables'
 import ProductsList from './ProductsList.vue'
 
 import { usePrinterStore } from '../stores/printer'
@@ -21,7 +22,7 @@ const printerStore = usePrinterStore()
 
 const isModalProducts = ref<boolean>(false)
 const isConnect = ref<boolean>(false)
-const idBooking = ref<number>()
+const idBooking = ref<number>(0)
 const time = ref<Date>(new Date())
 const phoneUser = ref<string>()
 const phoneName = ref<string>()
@@ -53,13 +54,13 @@ interface Props {
   tableSingle: {
     tables: ITables[]
     status: string
-  }
-  tableInfoSingle: ITablesInfo[]
-  dateCalendar: string
+  } | undefined
+  tableInfoSingle: ITablesInfo[] | []
+  dateCalendar: Date | undefined
 }
 
 const totalPrice = computed((): number => {
-  const array = tablesList.ordersInBooking.reduce((acc, num) => acc + num.price * num.count, 0)
+  const array = tablesList.ordersInBooking.reduce((acc:number, num:any) => acc + num.price * num.count, 0)
   return array
 })
 
@@ -76,9 +77,17 @@ const totalPriceSale = computed(() => {
 
 const order = async () => {
   console.log(props)
-  idBooking.value = props.tableSingle.tables.find((el) => el.status == 'active')?.id
-  console.log(idBooking.value)
+  if (props.tableSingle) {
+   const number = props.tableSingle.tables.find((el) => el.status == 'active')?.id
+   if(number){
+      idBooking.value = number
+   }
+   
+   console.log(idBooking.value)
   tablesList.getOrderInBooking(idBooking.value)
+} 
+
+
 }
 order()
 
@@ -96,8 +105,8 @@ const activeBooking = async (id: number, tableId: number) => {
   } else {
     const resp = await tablesList.activeBooking(id)
 
-    socket.emit('create', { name: '' }, (data) => {
-      console.log(data)
+    socket.emit('create', { name: '' }, () => {
+    
     })
     emit('closeModal', "create")
   }
@@ -121,10 +130,18 @@ const closeTable = async (id: number) => {
 }
 
 const isStatusActive = computed(() => {
+  if (!props.tableSingle) {
+    return false; 
+  }
   return props.tableSingle.tables.find((el) => el.status == 'active')
+
+
 })
 
 const activeTableForAdmin = async (tableId: number) => {
+  if (!props.tableSingle) {
+    return false; 
+  }
   let date = new Date()
   let dateBusy = new Date(
     props.tableSingle.tables.filter((el) => el.status == 'busy')[0]?.timeStart
@@ -159,11 +176,19 @@ const bookingTable = async (tableId: number) => {
 
   let date = new Date(time.value)
 
-  let date3 = new Date(dateStore.dateInBooking)
+  let date3:any
+  if (dateStore.dateInBooking) {
+     date3 = new Date(dateStore.dateInBooking)
+  }
+
   date3.setHours(date.getHours(), date.getMinutes(), date.getSeconds())
 
   let dateBase = `${dateStore.dateInBooking
     } ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+
+    if (!props.tableSingle) {
+    return false; 
+  }
 
   let date2 = new Date(props.tableSingle.tables.filter((el) => el.status == 'busy')[0]?.timeStart)
   console.log(dateBase)
@@ -174,8 +199,7 @@ const bookingTable = async (tableId: number) => {
     console.log(' в это время занято, выберите другое время', date2)
     return
   }
-  console.log(date2)
-  console.log(props.tableSingle.tables.filter((el) => el.status == 'busy')[0]?.timeStart)
+
   const { data } = await axios.post(`${apiMain}api/work/booking`, {
     tableId: tableId,
     timeStart: dateBase,
@@ -187,8 +211,8 @@ const bookingTable = async (tableId: number) => {
     userName: phoneName.value
   })
 
-  socket.emit('create', { name: '' }, (data) => {
-    console.log(data)
+  socket.emit('create', { name: '' }, () => {
+    
 
   })
   emit('closeModal', 'busy')
@@ -246,9 +270,9 @@ const print = async () => {
 
   try {
 
-    let line = ""
-    let line2 = ""
-    let totalLine = ""
+    let line:Uint8Array
+    let line2:Uint8Array
+    let totalLine:Uint8Array
     async function printRussianText() {
       const setWindows1251Command = new Uint8Array([0x1B, 0x74, 17]);
       const resetFontSizeCommand = new Uint8Array([0x1D, 0x21, 0x00]);
@@ -273,6 +297,7 @@ const print = async () => {
       await characteristic.writeValue(utf8_to_866(`        \n`));
       await characteristic.writeValue(resetdotsLineCommand);
 
+   
       for (const product of tablesList.ordersInBooking) {
 
         line = utf8_to_866(`${product.name}\n`);
@@ -286,6 +311,7 @@ const print = async () => {
         await characteristic.writeValue(line2);
 
       }
+
 
       await characteristic.writeValue(dotsLineCommand);
       await characteristic.writeValue(utf8_to_866(`        \n`));
@@ -325,7 +351,7 @@ const print = async () => {
     }
 
 
-    function utf8_to_866(aa) {
+    function utf8_to_866(aa:any) {
       let c = 0;
       let ab = new Uint8Array(aa.length);
 
@@ -371,7 +397,7 @@ const saleEdit = (num: number) => {
   </Dialog>
 
   <div >
-        <div v-if="tableSingle.tables.filter((el) => el.status == 'busy').length" class="orders">
+        <div v-if="tableSingle && tableSingle.tables.filter((el) => el.status == 'busy').length" class="orders">
           <span class="block text-600 font-medium mb-1">Ожидает:</span>
           <div class="error-message">
             <InlineMessage v-if="errors.activework.error" severity="error">{{ errors.activework.text }}
@@ -404,7 +430,7 @@ const saleEdit = (num: number) => {
 
 
   <div class="booking__btn-group">
-    <Button :disabled="new Date().toLocaleDateString() !== new Date(dateCalendar).toLocaleDateString()"
+    <Button :disabled="new Date().toLocaleDateString() !== new Date(dateCalendar ? dateCalendar : new Date()).toLocaleDateString()"
       v-if="!isStatusActive" @click="activeTableForAdmin(tableInfoSingle[0].id)" label="Посадка" severity="success"
       icon="pi pi-check-square" />
     <Button v-styleclass="{ selector: '.datapicker__group', toggleClass: 'hidden' }" class="btn__booking"

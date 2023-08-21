@@ -18,7 +18,8 @@ export const usePrinterStore = defineStore('printerStore', () => {
 
     if (!isConnect.value) {
        try {
-        // Запрашиваем у пользователя разрешение на доступ к Bluetooth-устройствам
+ 
+        //@ts-ignore
         device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [serviceUuid] }],
           optionalServices: [serviceUuid] // Добавьте UUID сервиса в список optionalServices

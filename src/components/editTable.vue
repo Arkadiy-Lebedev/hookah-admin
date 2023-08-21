@@ -19,14 +19,14 @@ interface Props {
   description: string
   image: string | ArrayBuffer
   id: number
-}
+} | undefined
 }
 console.log(props)
 
 const progress = ref()
 const textBtnFile = ref("изменить")
 const isErrorTypeFile = ref<boolean>(false)
-const filesForAvatar = ref(props.table.image);
+const filesForAvatar = ref(props.table ? props.table.image : null);
 const loading = ref<boolean>(false)
 const onProgress = ref<boolean>(false)
 
@@ -39,10 +39,10 @@ interface ITableItem {
 }
 
 const tableItem = reactive({
-  id: props.table.id,
+  id: props.table ? props.table.id : 0 ,
   file: "",
-  name: props.table.name,
-  description: props.table.description
+  name: props.table ? props.table.name : "",
+  description: props.table ? props.table.description : ""
 });
 
 const uploadImg = (e:any) => {

@@ -31,7 +31,7 @@ const getTables = async () => {
 }
 getTables()
 
-const editTableId = (id) => {
+const editTableId = (id:number) => {
     console.log(id)
     table.value = tables.value?.find(el => el.id == id)
     console.log(table.value )
@@ -39,7 +39,7 @@ const editTableId = (id) => {
    
 }
 
-const closeModal = (status) => {
+const closeModal = (status:string) => {
     isModal.value=false
     getTables()
     if(status == "success"){

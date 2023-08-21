@@ -6,7 +6,7 @@ import { apiMain } from '../api/api'
 const progress = ref()
 const textBtnFile = ref('загрузить')
 const isErrorTypeFile = ref<boolean>(false)
-const filesForAvatar = ref(null)
+const filesForAvatar = ref<string>('')
 const loading = ref<boolean>(false)
 const onProgress = ref<boolean>(false)
 
@@ -48,13 +48,19 @@ const saleDisactive = computed((): ISale[] => {
   return newArray
 })
 
+interface ISaleItem {
+  file: string,
+  title: string,
+  description: string,
+}
+
 const saleItem = reactive({
   file: '',
   title: '',
   description: ''
 })
 
-const uploadImg = (e) => {
+const uploadImg = (e:any) => {
   
   let file = e.target.files[0]
 
@@ -66,9 +72,13 @@ const uploadImg = (e) => {
     reader.readAsDataURL(file)
     let that = e
     reader.onload = function (e) {
+      if (e.target ) {
       saleItem.file = that.target.files[0]
-      filesForAvatar.value =
-        e.target.result;
+      const result = e.target.result;   
+      if (typeof result === 'string') {
+      filesForAvatar.value =  result;
+      }
+    }
     }
     textBtnFile.value = 'Изменить'
   }
@@ -92,14 +102,18 @@ const submitForm = () => {
   onProgress.value = true
   let formData = new FormData()
   for (let key in saleItem) {
-    formData.append(key, saleItem[key])
+    const typedKey = key as keyof ISaleItem 
+    formData.append(typedKey, saleItem[typedKey])
   }
 
   axios
     .post(`${apiMain}api/master/sale`, formData, {
+      
       onUploadProgress: (e) => {
+        if (e.total !== undefined && e.loaded !== undefined) {
         progress.value = Math.min(Math.round((e.loaded * 100) / e.total), 99)
       }
+    }
     })
     .then((data) => {
       console.log(456)
@@ -123,7 +137,7 @@ const submitForm = () => {
     })
 }
 
-const disactiveSale = async (id) => {
+const disactiveSale = async (id:number) => {
   console.log(id)
   try {
     const { data } = await axios.post(`${apiMain}api/master/sale/status`, {
@@ -137,7 +151,7 @@ const disactiveSale = async (id) => {
   }
 }
 
-const activeSale = async (id) => {
+const activeSale = async (id:number) => {
   console.log(id)
   try {
     const { data } = await axios.post(`${apiMain}api/master/sale/status`, {

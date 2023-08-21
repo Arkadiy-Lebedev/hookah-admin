@@ -25,7 +25,7 @@ const openOrder = (id: number, date: string) => {
 
 <template>
     <Dialog header="Заказ" v-model:visible="isModalOrder" :modal="true">
-        <MoreOrder :id="orderId" :date="dateBooking" @closeModal="closeModal"></MoreOrder>
+        <MoreOrder :id="orderId" :date="dateBooking" ></MoreOrder>
     </Dialog>
     <tr>
         <td class="table-order"  colspan="3" @click="openOrder(obj.bookingId, props.date)" >Чек {{ obj.bookingId }} - 

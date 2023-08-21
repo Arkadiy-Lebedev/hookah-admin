@@ -10,7 +10,7 @@ import { useField, useForm, ErrorMessage } from 'vee-validate';
 const { handleSubmit, resetForm } = useForm();
 const { value, errorMessage, errors } = useField('name', validateField);
 
-function validateField(value) {
+function validateField() {
  
   if (!productItem.name) {
     console.log(666)
@@ -55,7 +55,7 @@ const productItem = reactive({
   description: ''
 })
 
-const uploadImg = (e) => {
+const uploadImg = (e:any) => {
   const arrType = ['jpg', 'jpeg']
   let file = e.target.files[0]
 
@@ -68,9 +68,11 @@ const uploadImg = (e) => {
     reader.readAsDataURL(file)
     let that = e
     reader.onload = function (e) {
+      if (e.target && typeof e.target.result === 'string') {
       productItem.file = that.target.files[0]
       filesForAvatar.value =
         'data:image/png;base64,' + e.target.result.substring(e.target.result.indexOf(',') + 1)
+      }
     }
     textBtnFile.value = 'Изменить'
   }

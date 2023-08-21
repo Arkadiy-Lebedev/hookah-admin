@@ -19,7 +19,7 @@ interface ICategories {
 const categories = ref<ICategories[]>()
 const isModal = ref<boolean>(false)
 const isModalAdd = ref<boolean>(false)
-const categoria = ref<ICategories | null>(null)
+const categoria = ref<ICategories>()
 
 const getCategories = async () => {
   try {
@@ -32,7 +32,7 @@ const getCategories = async () => {
 }
 getCategories()
 
-const closeModal = (status) => {
+const closeModal = (status:string) => {
   isModal.value = false
   isModalAdd.value = false
   getCategories()
@@ -47,8 +47,12 @@ const closeModal = (status) => {
   }
 }
 
-const selectCategoria = (id) => {
-  categoria.value = categories.value?.find((el) => el.id == id)
+const selectCategoria = (id:number) => {
+  const categor = categories.value?.find((el) => el.id == id)
+  if(categor){
+    categoria.value = categor
+  }
+  
   isModal.value = true
 
 }

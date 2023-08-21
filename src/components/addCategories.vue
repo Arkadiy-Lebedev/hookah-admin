@@ -26,16 +26,22 @@ interface Props {
 const progress = ref()
 const textBtnFile = ref("загрузить")
 const isErrorTypeFile = ref<boolean>(false)
-const filesForAvatar = ref(null);
+const filesForAvatar = ref<null | string>(null);
 const loading = ref<boolean>(false)
 const onProgress = ref<boolean>(false)
+
+
+interface ICategoriesItem {
+  file: string,
+  type: string
+}
 
 const categoriesItem = reactive({
   file: "",
   type: ""
 });
 
-const uploadImg = (e) => {  
+const uploadImg = (e:any) => {  
   let file = e.target.files[0];
   if (
 
@@ -50,9 +56,13 @@ const uploadImg = (e) => {
     reader.readAsDataURL(file);
     let that = e;
     reader.onload = function (e) {
+      if (e.target ) {
       categoriesItem.file = that.target.files[0];
-      filesForAvatar.value =
-        e.target.result;
+      const result = e.target.result;    
+    if (typeof result === 'string') {
+      filesForAvatar.value = result;
+    }
+      }
     };
     textBtnFile.value = "Изменить";
   }
@@ -71,16 +81,19 @@ const submitForm = () => {
   onProgress.value = true;
   let formData = new FormData();
   for (let key in categoriesItem) {
-    formData.append(key, categoriesItem[key]);
+    const typedKey = key as keyof ICategoriesItem
+    formData.append(typedKey, categoriesItem[typedKey]);
   }
 
   axios
     .post(`${apiMain}api/master/categories`, formData, {
       onUploadProgress: (e) => {
+        if (e.total !== undefined && e.loaded !== undefined) {
         progress.value = Math.min(
           Math.round((e.loaded * 100) / e.total),
           99
         );
+        }
       },
     })
     .then((data) => {
