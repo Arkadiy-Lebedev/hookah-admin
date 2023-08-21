@@ -30,6 +30,14 @@ const filesForAvatar = ref(props.table.image);
 const loading = ref<boolean>(false)
 const onProgress = ref<boolean>(false)
 
+
+interface ITableItem {
+  id: number,
+  file: string,
+  name: string,
+  description: string
+}
+
 const tableItem = reactive({
   id: props.table.id,
   file: "",
@@ -37,7 +45,7 @@ const tableItem = reactive({
   description: props.table.description
 });
 
-const uploadImg = (e) => {
+const uploadImg = (e:any) => {
   const arrType = ["jpg", "jpeg"];
   let file = e.target.files[0];
 
@@ -54,9 +62,11 @@ const uploadImg = (e) => {
     reader.readAsDataURL(file);
     let that = e;
     reader.onload = function (e) {
-      tableItem.file = that.target.files[0];
-      filesForAvatar.value =
-        e.target.result;
+      if (e.target && typeof e.target.result === 'string') {
+        tableItem.file = that.target.files[0];
+        filesForAvatar.value =
+          e.target.result;
+      }
     };
     textBtnFile.value = "Изменить";
   }
@@ -70,16 +80,23 @@ const submitForm = () => {
   onProgress.value = true;
   let formData = new FormData();
   for (let key in tableItem) {
-    formData.append(key, tableItem[key]);
+    
+     const typedKey = key as keyof ITableItem; // Приведение типа к keyof CategoriesItem
+    const value = tableItem[typedKey]
+    if (value !== undefined && value !== null) {
+      formData.append(key, value.toString());
+    }
   }
 
   axios
     .put(`${apiMain}api/master/tables`, formData, {
       onUploadProgress: (e) => {
-        progress.value = Math.min(
-          Math.round((e.loaded * 100) / e.total),
-          99
-        );
+        if (e.total !== undefined && e.loaded !== undefined) {
+          progress.value = Math.min(
+            Math.round((e.loaded * 100) / e.total),
+            99
+          );
+        }
       },
     })
     .then((data) => {

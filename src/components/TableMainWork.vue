@@ -22,7 +22,7 @@ const printerStore = usePrinterStore()
 const isModalProducts = ref<boolean>(false)
 const isConnect = ref<boolean>(false)
 const idBooking = ref<number>()
-const time = ref<string>(new Date())
+const time = ref<Date>(new Date())
 const phoneUser = ref<string>()
 const phoneName = ref<string>()
 const sale = ref<number>(0)
@@ -113,7 +113,7 @@ const closeTable = async (id: number) => {
     totalPriceSale: totalPriceSale.value
   })
 
-  socket.emit('create', { name: '' }, (data) => {
+  socket.emit('create', { name: '' }, () => {
 
   })
   emit('closeModal', "cancel")
@@ -148,8 +148,8 @@ const activeTableForAdmin = async (tableId: number) => {
 
   emit('closeModal', 'create')
 
-  socket.emit('create', { name: '' }, (data) => {
-    console.log(data)
+  socket.emit('create', { name: '' }, () => {
+    
   })
 
   console.log(data)
@@ -202,14 +202,14 @@ const deleteBooking = async (id: number) => {
   })
   emit('closeModal', 'delete')
 
-  socket.emit('create', { name: '' }, (data) => {
-    console.log(data)
+  socket.emit('create', { name: '' }, () => {
+   
   })
 
   console.log(data)
 }
 
-const confirm2 = (event, id) => {
+const confirm2 = (event:any, id:number) => {
   confirm.require({
     target: event.currentTarget,
     message: 'Вы желаете закрыть стол?',
@@ -227,7 +227,7 @@ const confirm2 = (event, id) => {
 }
 
 
-let characteristic
+let characteristic:any
 const print = async () => {
 
 

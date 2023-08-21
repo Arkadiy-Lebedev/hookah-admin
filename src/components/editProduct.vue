@@ -17,20 +17,32 @@ productsList.getCategories()
 const progress = ref()
 const textBtnFile = ref("изменить")
 const isErrorTypeFile = ref<boolean>(false)
-const filesForAvatar = ref(productsList.product.image_product);
+
+const products = productsList.product ? productsList.product : null;
+const filesForAvatar = ref(products?.image_product);
+
 const loading = ref<boolean>(false)
 const onProgress = ref<boolean>(false)
 
+interface IProductItem {
+  id: number,
+  file: string,
+  name: string,
+  price: string,
+  categories: number,
+  description: string
+}
+
 const productItem = reactive({
-  id: productsList.product.id,
+  id: products?.id,
   file: "",
-  name: productsList.product.name,
-  price: productsList.product.price,
-  categories: productsList.product.categories_id,
-  description: productsList.product.discription_product
+  name: products?.name,
+  price: products?.price,
+  categories: products?.categories_id,
+  description: products?.discription_product
 });
 
-const uploadImg = (e) => {
+const uploadImg = (e:any) => {
   const arrType = ["jpg", "jpeg"];
   let file = e.target.files[0];
 
@@ -47,11 +59,13 @@ const uploadImg = (e) => {
     reader.readAsDataURL(file);
     let that = e;
     reader.onload = function (e) {
-      productItem.file = that.target.files[0];
-      filesForAvatar.value =
-        "data:image/png;base64," +
-        e.target.result.substring(e.target.result.indexOf(",") + 1);
-    };
+    if (e.target && typeof e.target.result === 'string') {
+        productItem.file = that.target.files[0];
+        filesForAvatar.value =
+          "data:image/png;base64," +
+          e.target.result.substring(e.target.result.indexOf(",") + 1);
+      }
+      };
     textBtnFile.value = "Изменить";
   }
 };
@@ -64,16 +78,23 @@ const submitForm = () => {
   onProgress.value = true;
   let formData = new FormData();
   for (let key in productItem) {
-    formData.append(key, productItem[key]);
+    const typedKey = key as keyof IProductItem; // Приведение типа к keyof CategoriesItem
+
+    const value = productItem[typedKey]
+    if (value !== undefined && value !== null) {
+      formData.append(typedKey, value.toString());
+    }
   }
 
   axios
     .put(`${apiMain}api/products`, formData, {
       onUploadProgress: (e) => {
-        progress.value = Math.min(
-          Math.round((e.loaded * 100) / e.total),
-          99
-        );
+        if (e.total !== undefined && e.loaded !== undefined) {
+          progress.value = Math.min(
+            Math.round((e.loaded * 100) / e.total),
+            99
+          );
+        }
       },
     })
     .then((data) => {
