@@ -390,6 +390,7 @@ const saleEdit = (num: number) => {
 <template>
   <!-- {{ tableSingle }}
 {{ isStatusActive }} -->
+{{ tableInfoSingle }}
   <Dialog header="Товары" v-model:visible="isModalProducts"
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' }"
     :style="{ width: '60vw', height: '90vh' }" :modal="true">

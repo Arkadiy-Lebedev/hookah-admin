@@ -24,7 +24,7 @@ interface ITableSinglInfo {
 
 const isModal = ref<boolean>(false)
 const singleTable = ref<ITableSinglInfo>()
-const tableInfoSingle = ref<ITablesInfo>()
+const tableInfoSingle = ref<ITablesInfo[]>()
 const tableSingleNumber = ref<string>()
 const date = ref<Date>(new Date())
 
@@ -40,7 +40,9 @@ watch(date, () => {
 })
 
 const getTable = async (tableInfo: ITableSinglInfo, number: number) => {
+  console.log(number)
   const { data } = await axios.post(`${apiMain}api/admin/action_table/info`, { number: number })
+  console.log(data)
   tableInfoSingle.value = data.data
   singleTable.value = tableInfo
   isModal.value = true
@@ -90,12 +92,13 @@ console.log(34)
 
 </script>
 <template>
+
         <Toast />
 <!-- :style="{ width: '60vw' }" -->
   <Dialog :header="tableSingleNumber" v-model:visible="isModal"
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' } " :style="{ width: '50vw' }"
     :modal="true">
-    <TableMainWork :dateCalendar="date" :tableSingle="singleTable" :tableInfoSingle="tableInfoSingle ? [tableInfoSingle] : []" @closeModal="closeModal"  @saleEdit="saleEdit" />
+    <TableMainWork :dateCalendar="date" :tableSingle="singleTable" :tableInfoSingle="tableInfoSingle ? tableInfoSingle : []" @closeModal="closeModal"  @saleEdit="saleEdit" />
     <template v-if="totalPrice>0" #footer>
           <p class="mt-1 order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
             <div  class="sale-box">
