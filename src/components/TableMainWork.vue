@@ -390,7 +390,7 @@ const saleEdit = (num: number) => {
 <template>
   <!-- {{ tableSingle }}
 {{ isStatusActive }} -->
-{{ tableInfoSingle }}
+
   <Dialog header="Товары" v-model:visible="isModalProducts"
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' }"
     :style="{ width: '60vw', height: '90vh' }" :modal="true">
@@ -398,35 +398,36 @@ const saleEdit = (num: number) => {
   </Dialog>
 
   <div >
-        <div v-if="tableSingle && tableSingle.tables.filter((el) => el.status == 'busy').length" class="orders">
-          <span class="block text-600 font-medium mb-1">Ожидает:</span>
-          <div class="error-message">
+    <div class="error-message">
             <InlineMessage v-if="errors.activework.error" severity="error">{{ errors.activework.text }}
             </InlineMessage>
           </div>
-          <ul v-for="(item, index) in tableSingle.tables.filter((el) => el.status == 'busy')" :key="item.id"
+        <div v-if="tableSingle && tableSingle.tables.filter((el) => el.status == 'busy').length" class="orders">
+          <!-- <span class="block text-600 font-medium mb-1">Бронь:</span> -->
+
+          <div v-for="(item, index) in tableSingle.tables.filter((el) => el.status == 'busy')" :key="item.id"
             class="p-0 mx-0 mt-0 mb-4 list-none">
-            <li class="list__item flex align-items-center py-2 border-bottom-1 surface-border">
-              <!-- <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                        <i class="pi pi-dollar text-xl text-blue-500"></i>
-                    </div> -->
+            <div class="oferstile list__item flex align-items-center py-2 border-bottom-1 surface-border">
+              
+              <div class="timereserv">
+              <span class="block text-600 font-medium mb-1">Бронь:</span>
               <span class="text__booking text-900 line-height-3"><span class="text-blue-500">{{ item.timeStart.split(' ')[1]
               }}</span>
                 {{ item.phone }} {{ item.client_name }} {{ item.order_client }}
                 <!-- <span class="text-700"> описание </span>   -->
               </span>
-
+              </div>
               <div class="btn__group">
                 <Button @click="activeBooking(item.id, item.table_id)" v-if="index == 0" icon="pi pi-check"
-                  severity="warning" rounded aria-label="Bookmark" size="small" />
-                <Button @click="deleteBooking(item.id)" icon="pi pi-times" severity="danger" rounded aria-label="Bookmark"
+                  severity="success" rounded aria-label="Bookmark" size="small" />
+                <Button @click="deleteBooking(item.id)" icon="pi pi-times" severity="warning" rounded aria-label="Bookmark"
                   size="small" />
               </div>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
 
-        <InlineMessage class="orders" v-else-if="!isStatusActive" severity="info">Бронь отсутствует</InlineMessage>
+        <InlineMessage class="orders ordersBot" v-else-if="!isStatusActive" severity="info">Бронь отсутствует</InlineMessage>
       </div>
 
 
@@ -467,7 +468,7 @@ const saleEdit = (num: number) => {
       <div class="order__header">
         <p>Посадка: {{ isStatusActive?.timeStart.split(' ')[1] }}</p>
         <div class="total">
-          <p class="order__totel-text">Сумма заказа: {{ totalPrice }} руб.</p>
+          
           <!-- <div class="sale-box" v-if="sale>0">
             <p>скидка: {{ sale }}%</p>
             <p class="order__totel-text">Со скидкой: {{ totalPriceSale  }} руб.</p>
@@ -478,11 +479,17 @@ const saleEdit = (num: number) => {
       </div>
 
       <div class="order__btn-group">
-        <Button label="Добавить" @click="isModalProducts = true" />
-        <Button label="Рассчитать" @click="print" severity="success" />
-        <Button label="Закрыть стол" @click="confirm2($event, isStatusActive.id)" severity="danger" />
-        <Button label="10%" @click="saleEdit(10)" severity="help" />
-        <Button label="15%" @click="saleEdit(15)" severity="help" />
+        <div class="group1">
+            <Button class="group1btn1"   label="Добавить" @click="isModalProducts = true" />
+            <Button label="15%" @click="saleEdit(15)" outlined  severity="secondary" />
+             <Button label="10%" @click="saleEdit(10)" outlined  severity="secondary" />
+              <Button label="0%" @click="saleEdit(0)" outlined  severity="secondary" />
+        </div>
+        <div class="group2">
+           <Button label="Чек" @click="print" severity="success" />
+          <Button label="Закрыть стол" @click="confirm2($event, isStatusActive.id)" severity="danger" />
+        </div>
+
         <ConfirmPopup></ConfirmPopup>
       </div>
       <!-- @click="closeTable(isStatusActive.id)" -->
@@ -507,7 +514,7 @@ const saleEdit = (num: number) => {
 
     <!-- <TabPanel header="Бронь">
       <div v-if="tableSingle.tables.filter((el) => el.status == 'busy').length" class="orders">
-        <span class="block text-600 font-medium mb-1">Ожидает:</span>
+        <span class="block text-600 font-medium mb-1">Бронь:</span>
         <div class="error-message">
           <InlineMessage v-if="errors.activework.error" severity="error">{{ errors.activework.text }}
           </InlineMessage>
@@ -542,23 +549,45 @@ const saleEdit = (num: number) => {
   display: flex;
   justify-content: space-between;
 }
+.timereserv  {
+  display: flex;
+}
+.text__booking {
+  margin-left: 10px;
+}
+.oferstile {
+  border-radius: 5px;
+background: #FCE5E5;
+padding: 10px !important;
+}
 
 .booking__input-group {
   display: flex;
   gap: 1vh;
 }
 
+
 .booking__btn-group {
   margin-bottom: 2vh;
   display: flex;
   gap: 1vh;
 }
-
-.order__btn-group {
+.group1{
   display: flex;
   gap: 2vh;
+}
+.group1btn1 {
+  margin-right: 1vh;
+}
+.group2{
+  display: flex;
+  gap: 2vh;
+}
+.order__btn-group {
+  display: flex;
   margin-bottom: 3vh;
   margin-top: 3vh;
+  justify-content: space-between;
 }
 
 .order__totel-text {
@@ -596,7 +625,10 @@ const saleEdit = (num: number) => {
 
 .orders {
   margin-top: 1vh;
-}
+  }
+  .ordersBot {
+    margin-bottom: 2vh;
+  }
 
 .datapicker {
   margin-top: 10px;
