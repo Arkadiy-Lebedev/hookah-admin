@@ -90,6 +90,7 @@ console.log(34)
   router.push({ name: 'auth' })
 };
 
+
 </script>
 <template>
 
@@ -112,6 +113,7 @@ console.log(34)
       <Calendar v-model="date" dateFormat="dd.mm.yy" showIcon touchUI :minDate="new Date()"/> 
       <Button @click="clearDate" icon="pi pi-check" severity="warning"  label="Сбросить дату"  />
     </div>
+
     <div class="log-out" @click="logOut">
       <i class="out__icon pi pi-sign-out" style="font-size: 2rem"></i> 
     </div>

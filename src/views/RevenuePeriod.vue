@@ -185,16 +185,11 @@ interface TableArray {
 
 
  <br>
-{{ Object.values(ordersMasterGroup) }}
 
 
 
-        <div class="card__items">
-
-          <Chart type="bar" :data="chartData" :options="chartOptions" />
 
 
-        </div>
 
         <!-- {{ Object.values(ordersMasterGroupTable) }}    -->
 
@@ -255,7 +250,13 @@ interface TableArray {
            
 
             <!-- Добавьте другие строки таблицы по аналогии -->
-        </table>       
+        </table> 
+        <div class="card__items">
+
+<Chart type="bar" :data="chartData" :options="chartOptions" />
+
+
+</div>      
       </div>      
     </div>     
   </div>
@@ -263,6 +264,9 @@ interface TableArray {
 </template>
 
 <style scoped>
+.card__items{
+  margin-top: 4rem;
+}
 table {
     width: 100%;
     border-collapse: collapse;
@@ -291,6 +295,8 @@ line-height: normal;
 .items{
   display: flex;
   justify-content: space-around;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 .item{
   border-radius: 5px;
@@ -299,10 +305,10 @@ background: #E9F0F6;
 }
 
 .item__text{
-padding-top:0.5rem;
-padding-bottom: 0.5rem;
-padding-left: 4rem;
-padding-right: 4rem;
+  padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 5rem;
+    padding-right: 5rem;
 }
 
 .item__text p{
@@ -311,7 +317,7 @@ margin: 0;
 
 .item__text-title {color: #3F3F3F;
 font-family: Inter;
-font-size: 12px;
+font-size: 18px;
 font-style: normal;
 font-weight: 400;
 line-height: normal;
@@ -321,7 +327,7 @@ text-align:center
 .item__text-subtitle {
   color: #37A2FE;
 font-family: Inter;
-font-size: 12px;
+font-size: 16px;
 font-style: normal;
 font-weight: 400;
 line-height: normal;

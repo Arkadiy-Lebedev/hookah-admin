@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ProgressSpinner from 'primevue/progressspinner';
 import axios from 'axios'
 import { useConfirm } from 'primevue/useconfirm'
 import { computed, ref, watch } from 'vue'
@@ -12,7 +11,6 @@ import type { ITables, ITablesInfo } from '../types/ITables'
 import ProductsList from './ProductsList.vue'
 
 import { usePrinterStore } from '../stores/printer'
-
 
 const confirm = useConfirm()
 const dateStore = useDateStore()
@@ -46,21 +44,26 @@ const errors = ref<any>({
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  (e: 'closeModal', status?: string): void,
+  (e: 'closeModal', status?: string): void
   (e: 'saleEdit', total: number, sale: number): void
 }>()
 
 interface Props {
-  tableSingle: {
-    tables: ITables[]
-    status: string
-  } | undefined
+  tableSingle:
+    | {
+        tables: ITables[]
+        status: string
+      }
+    | undefined
   tableInfoSingle: ITablesInfo[] | []
   dateCalendar: Date | undefined
 }
 
 const totalPrice = computed((): number => {
-  const array = tablesList.ordersInBooking.reduce((acc:number, num:any) => acc + num.price * num.count, 0)
+  const array = tablesList.ordersInBooking.reduce(
+    (acc: number, num: any) => acc + num.price * num.count,
+    0
+  )
   return array
 })
 
@@ -69,25 +72,22 @@ watch(totalPrice, () => {
 })
 emit('saleEdit', totalPrice.value, 0)
 
-
 const totalPriceSale = computed(() => {
-  const array = totalPrice.value - (totalPrice.value * (sale.value / 100))
+  const array = totalPrice.value - totalPrice.value * (sale.value / 100)
   return array
 })
 
 const order = async () => {
   console.log(props)
   if (props.tableSingle) {
-   const number = props.tableSingle.tables.find((el) => el.status == 'active')?.id
-   if(number){
+    const number = props.tableSingle.tables.find((el) => el.status == 'active')?.id
+    if (number) {
       idBooking.value = number
-   }
-   
-   console.log(idBooking.value)
-  tablesList.getOrderInBooking(idBooking.value)
-} 
+    }
 
-
+    console.log(idBooking.value)
+    tablesList.getOrderInBooking(idBooking.value)
+  }
 }
 order()
 
@@ -105,10 +105,8 @@ const activeBooking = async (id: number, tableId: number) => {
   } else {
     const resp = await tablesList.activeBooking(id)
 
-    socket.emit('create', { name: '' }, () => {
-    
-    })
-    emit('closeModal', "create")
+    socket.emit('create', { name: '' }, () => {})
+    emit('closeModal', 'create')
   }
 }
 
@@ -122,25 +120,20 @@ const closeTable = async (id: number) => {
     totalPriceSale: totalPriceSale.value
   })
 
-  socket.emit('create', { name: '' }, () => {
-
-  })
-  emit('closeModal', "cancel")
-
+  socket.emit('create', { name: '' }, () => {})
+  emit('closeModal', 'cancel')
 }
 
 const isStatusActive = computed(() => {
   if (!props.tableSingle) {
-    return false; 
+    return false
   }
   return props.tableSingle.tables.find((el) => el.status == 'active')
-
-
 })
 
 const activeTableForAdmin = async (tableId: number) => {
   if (!props.tableSingle) {
-    return false; 
+    return false
   }
   let date = new Date()
   let dateBusy = new Date(
@@ -165,29 +158,27 @@ const activeTableForAdmin = async (tableId: number) => {
 
   emit('closeModal', 'create')
 
-  socket.emit('create', { name: '' }, () => {
-    
-  })
+  socket.emit('create', { name: '' }, () => {})
 
   console.log(data)
 }
 
 const bookingTable = async (tableId: number) => {
-
   let date = new Date(time.value)
 
-  let date3:any
+  let date3: any
   if (dateStore.dateInBooking) {
-     date3 = new Date(dateStore.dateInBooking)
+    date3 = new Date(dateStore.dateInBooking)
   }
 
   date3.setHours(date.getHours(), date.getMinutes(), date.getSeconds())
 
-  let dateBase = `${dateStore.dateInBooking
-    } ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+  let dateBase = `${
+    dateStore.dateInBooking
+  } ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 
-    if (!props.tableSingle) {
-    return false; 
+  if (!props.tableSingle) {
+    return false
   }
 
   let date2 = new Date(props.tableSingle.tables.filter((el) => el.status == 'busy')[0]?.timeStart)
@@ -211,10 +202,7 @@ const bookingTable = async (tableId: number) => {
     userName: phoneName.value
   })
 
-  socket.emit('create', { name: '' }, () => {
-    
-
-  })
+  socket.emit('create', { name: '' }, () => {})
   emit('closeModal', 'busy')
 
   console.log(data)
@@ -226,14 +214,12 @@ const deleteBooking = async (id: number) => {
   })
   emit('closeModal', 'delete')
 
-  socket.emit('create', { name: '' }, () => {
-   
-  })
+  socket.emit('create', { name: '' }, () => {})
 
   console.log(data)
 }
 
-const confirm2 = (event:any, id:number) => {
+const confirm2 = (event: any, id: number) => {
   confirm.require({
     target: event.currentTarget,
     message: 'Вы желаете закрыть стол?',
@@ -250,133 +236,113 @@ const confirm2 = (event:any, id:number) => {
   })
 }
 
-
-let characteristic:any
+let characteristic: any
 const print = async () => {
-
-
-
   if (!printerStore.isConnect) {
     try {
       await printerStore.getCharacteristic()
       characteristic = printerStore.characteristic
-    }
-    catch {
-      console.log("нет подключения к принтеру")
+    } catch {
+      console.log('нет подключения к принтеру')
     }
   } else {
     characteristic = printerStore.characteristic
   }
 
   try {
-
-    let line:Uint8Array
-    let line2:Uint8Array
-    let totalLine:Uint8Array
+    let line: Uint8Array
+    let line2: Uint8Array
+    let totalLine: Uint8Array
     async function printRussianText() {
-      const setWindows1251Command = new Uint8Array([0x1B, 0x74, 17]);
-      const resetFontSizeCommand = new Uint8Array([0x1D, 0x21, 0x00]);
-      const leftalignmentCommand = new Uint8Array([0x1B, 0x61, 0x00]); // Выравнивание по левой стороне
-      const rightAlignmentCommand = new Uint8Array([0x1B, 0x61, 0x02]);// Выравнивание по правой стороне
-      const dotsLineCommand = new Uint8Array([0x1B, 0x2D, 0x01]);  // Команда для простановки точек на всю ширину
-      const resetdotsLineCommand = new Uint8Array([0x1B, 0x2D, 0x00]);
-      const fontSizeCommand = new Uint8Array([0x1D, 0x21, 1]); // Размер шрифта: 0 - обычный, 1 - двойной вертикальный, 2 - двойной горизонтальный, 3 - двойной по обоим направлениям
+      const setWindows1251Command = new Uint8Array([0x1b, 0x74, 17])
+      const resetFontSizeCommand = new Uint8Array([0x1d, 0x21, 0x00])
+      const leftalignmentCommand = new Uint8Array([0x1b, 0x61, 0x00]) // Выравнивание по левой стороне
+      const rightAlignmentCommand = new Uint8Array([0x1b, 0x61, 0x02]) // Выравнивание по правой стороне
+      const dotsLineCommand = new Uint8Array([0x1b, 0x2d, 0x01]) // Команда для простановки точек на всю ширину
+      const resetdotsLineCommand = new Uint8Array([0x1b, 0x2d, 0x00])
+      const fontSizeCommand = new Uint8Array([0x1d, 0x21, 1]) // Размер шрифта: 0 - обычный, 1 - двойной вертикальный, 2 - двойной горизонтальный, 3 - двойной по обоим направлениям
 
-
-      await characteristic.writeValue(setWindows1251Command);
-      await characteristic.writeValue(resetFontSizeCommand);
-      await characteristic.writeValue(resetdotsLineCommand);
+      await characteristic.writeValue(setWindows1251Command)
+      await characteristic.writeValue(resetFontSizeCommand)
+      await characteristic.writeValue(resetdotsLineCommand)
       // await characteristic.writeValue(leftalignmentCommand);
 
-      await characteristic.writeValue(fontSizeCommand);
-      await characteristic.writeValue(utf8_to_866(`Hookah Bar`));
-      await characteristic.writeValue(resetFontSizeCommand);
-      await characteristic.writeValue(utf8_to_866(`\nДата: 21.08.2023\n`));
+      await characteristic.writeValue(fontSizeCommand)
+      await characteristic.writeValue(utf8_to_866(`Hookah Bar`))
+      await characteristic.writeValue(resetFontSizeCommand)
+      await characteristic.writeValue(utf8_to_866(`\nДата: 21.08.2023\n`))
 
-      await characteristic.writeValue(dotsLineCommand);
-      await characteristic.writeValue(utf8_to_866(`        \n`));
-      await characteristic.writeValue(resetdotsLineCommand);
+      await characteristic.writeValue(dotsLineCommand)
+      await characteristic.writeValue(utf8_to_866(`        \n`))
+      await characteristic.writeValue(resetdotsLineCommand)
 
-   
       for (const product of tablesList.ordersInBooking) {
+        line = utf8_to_866(`${product.name}\n`)
+        await characteristic.writeValue(leftalignmentCommand)
+        await characteristic.writeValue(line)
+        line = utf8_to_866(`${product.count} * ${product.price}\n`)
+        await characteristic.writeValue(line)
 
-        line = utf8_to_866(`${product.name}\n`);
-        await characteristic.writeValue(leftalignmentCommand);
-        await characteristic.writeValue(line);
-        line = utf8_to_866(`${product.count} * ${product.price}\n`);
-        await characteristic.writeValue(line);
-
-        line2 = utf8_to_866(`${product.count * product.price}\n`);
-        await characteristic.writeValue(rightAlignmentCommand);
-        await characteristic.writeValue(line2);
-
+        line2 = utf8_to_866(`${product.count * product.price}\n`)
+        await characteristic.writeValue(rightAlignmentCommand)
+        await characteristic.writeValue(line2)
       }
 
+      await characteristic.writeValue(dotsLineCommand)
+      await characteristic.writeValue(utf8_to_866(`        \n`))
+      await characteristic.writeValue(resetdotsLineCommand)
 
-      await characteristic.writeValue(dotsLineCommand);
-      await characteristic.writeValue(utf8_to_866(`        \n`));
-      await characteristic.writeValue(resetdotsLineCommand);
-
-
-
-
-      totalLine = utf8_to_866(`\n К оплате ${totalPrice.value}\n\n`);
-      await characteristic.writeValue(leftalignmentCommand);
-      await characteristic.writeValue(fontSizeCommand);
-      await characteristic.writeValue(totalLine);
+      totalLine = utf8_to_866(`\n К оплате ${totalPrice.value}\n\n`)
+      await characteristic.writeValue(leftalignmentCommand)
+      await characteristic.writeValue(fontSizeCommand)
+      await characteristic.writeValue(totalLine)
 
       if (sale.value > 0) {
-        totalLine = utf8_to_866(`\n Скидка ${sale.value}%\n`);
-        await characteristic.writeValue(totalLine);
-        totalLine = utf8_to_866(`Со скидкой ${totalPriceSale.value}\n`);
-        await characteristic.writeValue(totalLine);
+        totalLine = utf8_to_866(`\n Скидка ${sale.value}%\n`)
+        await characteristic.writeValue(totalLine)
+        totalLine = utf8_to_866(`Со скидкой ${totalPriceSale.value}\n`)
+        await characteristic.writeValue(totalLine)
       }
 
-      await characteristic.writeValue(resetFontSizeCommand);
+      await characteristic.writeValue(resetFontSizeCommand)
 
-      await characteristic.writeValue(dotsLineCommand);
-      await characteristic.writeValue(utf8_to_866(`        \n`));
-      await characteristic.writeValue(resetdotsLineCommand);
+      await characteristic.writeValue(dotsLineCommand)
+      await characteristic.writeValue(utf8_to_866(`        \n`))
+      await characteristic.writeValue(resetdotsLineCommand)
 
-      await characteristic.writeValue(utf8_to_866(`\nВознаграждение официанта приветствуется, но всегда остается на Ваше усматрение\n\n\n\n\n`));
+      await characteristic.writeValue(
+        utf8_to_866(
+          `\nВознаграждение официанта приветствуется, но всегда остается на Ваше усматрение\n\n\n\n\n`
+        )
+      )
 
       try {
-
-
-
-        console.log('Текст успешно отправлен на печать.');
+        console.log('Текст успешно отправлен на печать.')
       } catch (error) {
-        console.error('Ошибка при отправке текста на печать:', error);
+        console.error('Ошибка при отправке текста на печать:', error)
       }
     }
 
-
-    function utf8_to_866(aa:any) {
-      let c = 0;
-      let ab = new Uint8Array(aa.length);
+    function utf8_to_866(aa: any) {
+      let c = 0
+      let ab = new Uint8Array(aa.length)
 
       for (let i = 0; i < aa.length; i++) {
-        c = aa.charCodeAt(i);
+        c = aa.charCodeAt(i)
         if (c >= 1040 && c <= 1087) {
-          ab[i] = c - 912;
+          ab[i] = c - 912
         } else if (c >= 1088 && c <= 1105) {
-          ab[i] = c - 864;
+          ab[i] = c - 864
         } else {
-          ab[i] = aa.charCodeAt(i);
+          ab[i] = aa.charCodeAt(i)
         }
       }
-      return ab;
+      return ab
     }
 
-
-
-    printRussianText();
-
-
-
-
+    printRussianText()
   } catch (error) {
-    console.error('Ошибка:', error);
+    console.error('Ошибка:', error)
   }
 }
 
@@ -384,59 +350,98 @@ const saleEdit = (num: number) => {
   sale.value = num
   emit('saleEdit', totalPrice.value, num)
 }
-
-
 </script>
 <template>
   <!-- {{ tableSingle }}
 {{ isStatusActive }} -->
 
-  <Dialog header="Товары" v-model:visible="isModalProducts"
+  <Dialog
+    header="Товары"
+    v-model:visible="isModalProducts"
     :breakpoints="{ '1420px': '60vw', '960px': '80vw', '700px': '90vw', '640px': '99vw' }"
-    :style="{ width: '60vw', height: '90vh' }" :modal="true">
+    :style="{ width: '60vw', height: '90vh' }"
+    :modal="true"
+  >
     <ProductsList :id-booking="idBooking" @closeModal="closeModal"></ProductsList>
   </Dialog>
 
-  <div >
+  <div>
     <div class="error-message">
-            <InlineMessage v-if="errors.activework.error" severity="error">{{ errors.activework.text }}
-            </InlineMessage>
-          </div>
-        <div v-if="tableSingle && tableSingle.tables.filter((el) => el.status == 'busy').length" class="orders">
-          <!-- <span class="block text-600 font-medium mb-1">Бронь:</span> -->
+      <InlineMessage v-if="errors.activework.error" severity="error"
+        >{{ errors.activework.text }}
+      </InlineMessage>
+    </div>
+    <div
+      v-if="tableSingle && tableSingle.tables.filter((el) => el.status == 'busy').length"
+      class="orders"
+    >
+      <!-- <span class="block text-600 font-medium mb-1">Бронь:</span> -->
 
-          <div v-for="(item, index) in tableSingle.tables.filter((el) => el.status == 'busy')" :key="item.id"
-            class="p-0 mx-0 mt-0 mb-4 list-none">
-            <div class="oferstile list__item flex align-items-center py-2 border-bottom-1 surface-border">
-              
-              <div class="timereserv">
-              <span class="block text-600 font-medium mb-1">Бронь:</span>
-              <span class="text__booking text-900 line-height-3"><span class="text-blue-500">{{ item.timeStart.split(' ')[1]
-              }}</span>
-                {{ item.phone }} {{ item.client_name }} {{ item.order_client }}
-                <!-- <span class="text-700"> описание </span>   -->
-              </span>
-              </div>
-              <div class="btn__group">
-                <Button @click="activeBooking(item.id, item.table_id)" v-if="index == 0" icon="pi pi-check"
-                  severity="success" rounded aria-label="Bookmark" size="small" />
-                <Button @click="deleteBooking(item.id)" icon="pi pi-times" severity="warning" rounded aria-label="Bookmark"
-                  size="small" />
-              </div>
-            </div>
+      <div
+        v-for="(item, index) in tableSingle.tables.filter((el) => el.status == 'busy')"
+        :key="item.id"
+        class="p-0 mx-0 mt-0 mb-4 list-none"
+      >
+        <div
+          class="oferstile list__item flex align-items-center py-2 border-bottom-1 surface-border"
+        >
+          <div class="timereserv">
+            <span class="block text-600 font-medium mb-1">Бронь:</span>
+            <span class="text__booking text-900 line-height-3"
+              ><span class="text-blue-500">{{ item.timeStart.split(' ')[1] }}</span>
+              {{ item.phone }} {{ item.client_name }} {{ item.order_client }}
+              <!-- <span class="text-700"> описание </span>   -->
+            </span>
+          </div>
+          <div class="btn__group">
+            <Button
+              @click="activeBooking(item.id, item.table_id)"
+              v-if="index == 0"
+              icon="pi pi-check"
+              severity="success"
+              rounded
+              aria-label="Bookmark"
+              size="small"
+            />
+            <Button
+              @click="deleteBooking(item.id)"
+              icon="pi pi-times"
+              severity="warning"
+              rounded
+              aria-label="Bookmark"
+              size="small"
+            />
           </div>
         </div>
-
-        <InlineMessage class="orders ordersBot" v-else-if="!isStatusActive" severity="info">Бронь отсутствует</InlineMessage>
       </div>
+    </div>
 
+    <InlineMessage class="orders ordersBot" v-else-if="!isStatusActive" severity="info"
+      >Бронь отсутствует</InlineMessage
+    >
+  </div>
 
   <div class="booking__btn-group">
-    <Button :disabled="new Date().toLocaleDateString() !== new Date(dateCalendar ? dateCalendar : new Date()).toLocaleDateString()"
-      v-if="!isStatusActive" @click="activeTableForAdmin(tableInfoSingle[0].id)" label="Посадка" severity="success"
-      icon="pi pi-check-square" />
-    <Button v-styleclass="{ selector: '.datapicker__group', toggleClass: 'hidden' }" class="btn__booking"
-      v-if="!isStatusActive" type="button" severity="warning" icon="pi pi-calendar-times" label="Забронировать" />
+    <Button
+      :disabled="
+        new Date().toLocaleDateString() !==
+        new Date(dateCalendar ? dateCalendar : new Date()).toLocaleDateString()
+      "
+      v-if="!isStatusActive"
+      @click="activeTableForAdmin(tableInfoSingle[0].id)"
+      label="Посадка"
+      severity="success"
+      icon="pi pi-check-square"
+    />
+    <Button
+      v-styleclass="{ selector: '.datapicker__group', toggleClass: 'hidden' }"
+      class="btn__booking"
+      v-if="!isStatusActive"
+      type="button"
+      severity="warning"
+      icon="pi pi-calendar-times"
+      label="Забронировать"
+    />
   </div>
   <div class="error-message">
     <InlineMessage v-if="errors.activebusy.error" severity="error">{{
@@ -450,12 +455,24 @@ const saleEdit = (num: number) => {
         <label for="username">Имя</label>
       </span>
       <span class="p-float-label">
-        <InputMask id="phone" v-model="phoneUser" mask="+7999-999-99-99" placeholder="+7999-999-99-99" />
+        <InputMask
+          id="phone"
+          v-model="phoneUser"
+          mask="+7999-999-99-99"
+          placeholder="+7999-999-99-99"
+        />
         <label for="phone">Телефон</label>
       </span>
     </div>
 
-    <Calendar class="datapicker" id="calendar-timeonly" v-model="time" timeOnly touchUI :stepMinute="10" />
+    <Calendar
+      class="datapicker"
+      id="calendar-timeonly"
+      v-model="time"
+      timeOnly
+      touchUI
+      :stepMinute="10"
+    />
     <Button label="ОК" @click="bookingTable(tableInfoSingle[0].id)" severity="warning" />
     <div class="error-message">
       <InlineMessage v-if="errors.timebusy.error" severity="error">{{
@@ -468,34 +485,38 @@ const saleEdit = (num: number) => {
       <div class="order__header">
         <p>Посадка: {{ isStatusActive?.timeStart.split(' ')[1] }}</p>
         <div class="total">
-          
           <!-- <div class="sale-box" v-if="sale>0">
             <p>скидка: {{ sale }}%</p>
             <p class="order__totel-text">Со скидкой: {{ totalPriceSale  }} руб.</p>
           </div> -->
-
         </div>
-
       </div>
 
       <div class="order__btn-group">
         <div class="group1">
-            <Button class="group1btn1"   label="Добавить" @click="isModalProducts = true" />
-            <Button label="15%" @click="saleEdit(15)" outlined  severity="secondary" />
-             <Button label="10%" @click="saleEdit(10)" outlined  severity="secondary" />
-              <Button label="0%" @click="saleEdit(0)" outlined  severity="secondary" />
+          <Button class="group1btn1" label="Добавить" @click="isModalProducts = true" />
+          <Button label="15%" @click="saleEdit(15)" outlined severity="secondary" />
+          <Button label="10%" @click="saleEdit(10)" outlined severity="secondary" />
+          <Button label="0%" @click="saleEdit(0)" outlined severity="secondary" />
         </div>
         <div class="group2">
-           <Button label="Чек" @click="print" severity="success" />
-          <Button label="Закрыть стол" @click="confirm2($event, isStatusActive.id)" severity="danger" />
+          <Button label="Чек" @click="print" severity="success" />
+          <Button
+            label="Закрыть стол"
+            @click="confirm2($event, isStatusActive.id)"
+            severity="danger"
+          />
         </div>
 
         <ConfirmPopup></ConfirmPopup>
       </div>
       <!-- @click="closeTable(isStatusActive.id)" -->
       <div class="orders">
-
-        <DataTable :value="tablesList.ordersInBooking" class="p-datatable-sm" :loading="tablesList.isLoadingOrders">
+        <DataTable
+          :value="tablesList.ordersInBooking"
+          class="p-datatable-sm"
+          :loading="tablesList.isLoadingOrders"
+        >
           <!-- <Column field="id" header="id"></Column> -->
           <Column field="name" header="Название"></Column>
           <Column field="price" header="Цена"></Column>
@@ -506,9 +527,6 @@ const saleEdit = (num: number) => {
             </template>
           </Column>
         </DataTable>
-
-
-
       </div>
     </TabPanel>
 
@@ -549,7 +567,7 @@ const saleEdit = (num: number) => {
   display: flex;
   justify-content: space-between;
 }
-.timereserv  {
+.timereserv {
   display: flex;
 }
 .text__booking {
@@ -557,8 +575,8 @@ const saleEdit = (num: number) => {
 }
 .oferstile {
   border-radius: 5px;
-background: #FCE5E5;
-padding: 10px !important;
+  background: #fce5e5;
+  padding: 10px !important;
 }
 
 .booking__input-group {
@@ -566,20 +584,19 @@ padding: 10px !important;
   gap: 1vh;
 }
 
-
 .booking__btn-group {
   margin-bottom: 2vh;
   display: flex;
   gap: 1vh;
 }
-.group1{
+.group1 {
   display: flex;
   gap: 2vh;
 }
 .group1btn1 {
   margin-right: 1vh;
 }
-.group2{
+.group2 {
   display: flex;
   gap: 2vh;
 }
@@ -625,10 +642,10 @@ padding: 10px !important;
 
 .orders {
   margin-top: 1vh;
-  }
-  .ordersBot {
-    margin-bottom: 2vh;
-  }
+}
+.ordersBot {
+  margin-bottom: 2vh;
+}
 
 .datapicker {
   margin-top: 10px;

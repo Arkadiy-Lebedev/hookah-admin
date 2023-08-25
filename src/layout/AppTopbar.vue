@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useLayout } from '@/layout/composables/layout';
-import { useRouter } from 'vue-router';
+import { useLayout } from '@/layout/composables/layout'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const { layoutConfig, onMenuToggle } = useLayout();
 
@@ -62,14 +62,16 @@ const isOutsideClicked = (event) => {
 <template>
     <div class="layout-topbar">
         <router-link to="/" class="layout-topbar-logo">
-            <img src="../assets/logo.svg" alt="logo" />
-            <span>HOOKAH</span>
+            <img src="../assets/image/logo.png" alt="logo" />
+            <span>HARADAK</span>
         </router-link>
 
         <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
             <i class="pi pi-bars"></i>
         </button>
-
+        <button class="p-link layout-topbar-menu-button layout-topbar-button" @click="onTopBarMenuButton()">
+            <i class="pi pi-ellipsis-v"></i>
+        </button>
         <div class="layout-topbar-menu" :class="topbarMenuClasses">  
             <button @click="logOut()" class="p-link layout-topbar-button">
                 <i class="pi pi-sign-out"></i>
